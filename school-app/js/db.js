@@ -1,14 +1,4 @@
-// LocalStorage-backed DB with in-memory fallback for sandboxed environments.
-//
-// Data model (simplified):
-//   settings   { orgName, logo, theme, lang, currency }
-//   shifts     [{ id, name, nameAr, start, end }]        // used by subjects (lookup, in Settings)
-//   bookTypes  [{ id, name }]                            // e.g. "Full Course", "First Half" (lookup)
-//   teachers   [{ id, name, phone, notes }]
-//   subjects   [{ id, name, teacherId, shiftId, price, notes, studentIds:[] }]
-//   students   [{ id, fullName, phone, gender, dob, guardian, address, notes, subjectIds:[], enrolled }]
-//   sales      [{ id, ts, session, book, teacherId, typeId, qty, price, total, notes }]
-//   session    { current: "YYYY-MM-DD", startedAt }     // "day" bucket for the sales tab
+// LocalStorage-backed DB with SQLite export/import & in-memory fallback.
 
 const DB = {
   KEY: "school.db.v2",
@@ -37,7 +27,7 @@ const DB = {
         orgName: "",
         logo: null,
         theme: "light",
-        lang: "en",
+        lang: "ku",
         currency: "IQD"
       },
       shifts:    [],
@@ -120,9 +110,11 @@ const DB = {
     const t3 = this.upsert("teachers", { name: "Omar Ali",      phone: "0770-100-0003", notes: "Chemistry" });
 
     // Subjects (with target grade & possibly multiple teachers)
-    const s1 = this.upsert("subjects", { name: "Math — Grade 12", teacherIds: [t1.id], shiftId: morning.id, gradeId: g12.id, price: 50000, notes: "Preparation for final exam" });
-    const s2 = this.upsert("subjects", { name: "English Intensive", teacherIds: [t2.id], shiftId: evening.id, gradeId: "", price: 40000, notes: "" });
-    const s3 = this.upsert("subjects", { name: "Chemistry — Grade 12", teacherIds: [t3.id, t1.id], shiftId: morning.id, gradeId: g12.id, price: 45000, notes: "Also taught by Ahmed for extra sections" });
+    const s1 = this.upsert("subjects", { name: "Math — Grade 12", teacherIds: [t1.id], shiftId: morning.id, gradeId: g12.id, price: 50000, category: "school", notes: "Preparation for final exam" });
+    const s2 = this.upsert("subjects", { name: "English Intensive", teacherIds: [t2.id], shiftId: evening.id, gradeId: "", price: 40000, category: "language", notes: "General language skill building" });
+    const s3 = this.upsert("subjects", { name: "Chemistry — Grade 12", teacherIds: [t3.id, t1.id], shiftId: morning.id, gradeId: g12.id, price: 45000, category: "school", notes: "Also taught by Ahmed for extra sections" });
+    const s4 = this.upsert("subjects", { name: "German A1 — Beginner", teacherIds: [t2.id], shiftId: evening.id, gradeId: "", price: 75000, category: "language", notes: "Beginner conversational German" });
+    const s5 = this.upsert("subjects", { name: "IELTS Prep — Masterclass", teacherIds: [t2.id], shiftId: evening.id, gradeId: "", price: 90000, category: "language", notes: "Comprehensive exam prep" });
 
     // Students — with grade & class
     const st1 = this.upsert("students", { fullName: "Layla Ibrahim", phone: "0750-111-0001", gender: "female", gradeId: g12.id, classId: c12a.id, enrolled: this.today(), custom: [{ label: "Guardian", value: "Ibrahim Karim" }] });
@@ -132,11 +124,11 @@ const DB = {
     const st5 = this.upsert("students", { fullName: "Fatima Zaki",   phone: "0750-111-0005", gender: "female", gradeId: g11.id, classId: c11a.id, enrolled: this.today() });
 
     // Enrollments (M2M)
-    this.setStudentSubjects(st1.id, [s1.id, s3.id]);
+    this.setStudentSubjects(st1.id, [s1.id, s3.id, s5.id]);
     this.setStudentSubjects(st2.id, [s1.id]);
-    this.setStudentSubjects(st3.id, [s2.id]);
+    this.setStudentSubjects(st3.id, [s2.id, s4.id]);
     this.setStudentSubjects(st4.id, [s1.id, s2.id]);
-    this.setStudentSubjects(st5.id, [s3.id, s2.id]);
+    this.setStudentSubjects(st5.id, [s3.id, s2.id, s4.id]);
 
     // A few sample sales for today's session
     this.addSale({ book: "Math — Full Course", teacherId: t1.id, typeId: "type_full",   qty: 2, price: 15000 });
@@ -379,5 +371,244 @@ const DB = {
     parsed.settings = { ...d.settings, ...(parsed.settings || {}) };
     this.data = parsed;
     this.save();
+  },
+
+  exportSql() {
+    const esc = val => {
+      if (val === null || val === undefined || val === "") return "NULL";
+      if (typeof val === "number") return val;
+      if (typeof val === "boolean") return val ? 1 : 0;
+      if (typeof val === "object") return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+      return `'${String(val).replace(/'/g, "''")}'`;
+    };
+
+    let sql = `-- ORASIA School Manager SQL Dump\n-- Generated: ${this.now()}\n-- Compatible with SQLite, MySQL, PostgreSQL\n\n`;
+    sql += `PRAGMA foreign_keys = OFF;\nBEGIN TRANSACTION;\n\n`;
+
+    // 1. settings
+    sql += `DROP TABLE IF EXISTS settings;\nCREATE TABLE settings (key TEXT PRIMARY KEY, value TEXT);\n`;
+    for (const [k, v] of Object.entries(this.data.settings || {})) {
+      sql += `INSERT INTO settings (key, value) VALUES (${esc(k)}, ${esc(v)});\n`;
+    }
+    sql += `\n`;
+
+    // 2. shifts
+    sql += `DROP TABLE IF EXISTS shifts;\nCREATE TABLE shifts (id TEXT PRIMARY KEY, name TEXT, nameAr TEXT, start_time TEXT, end_time TEXT);\n`;
+    for (const s of this.list("shifts")) {
+      sql += `INSERT INTO shifts (id, name, nameAr, start_time, end_time) VALUES (${esc(s.id)}, ${esc(s.name)}, ${esc(s.nameAr)}, ${esc(s.start)}, ${esc(s.end)});\n`;
+    }
+    sql += `\n`;
+
+    // 3. grades
+    sql += `DROP TABLE IF EXISTS grades;\nCREATE TABLE grades (id TEXT PRIMARY KEY, name TEXT);\n`;
+    for (const g of this.list("grades")) {
+      sql += `INSERT INTO grades (id, name) VALUES (${esc(g.id)}, ${esc(g.name)});\n`;
+    }
+    sql += `\n`;
+
+    // 4. classes
+    sql += `DROP TABLE IF EXISTS classes;\nCREATE TABLE classes (id TEXT PRIMARY KEY, name TEXT, grade_id TEXT);\n`;
+    for (const c of this.list("classes")) {
+      sql += `INSERT INTO classes (id, name, grade_id) VALUES (${esc(c.id)}, ${esc(c.name)}, ${esc(c.gradeId)});\n`;
+    }
+    sql += `\n`;
+
+    // 5. book_types
+    sql += `DROP TABLE IF EXISTS book_types;\nCREATE TABLE book_types (id TEXT PRIMARY KEY, name TEXT);\n`;
+    for (const b of this.list("bookTypes")) {
+      sql += `INSERT INTO book_types (id, name) VALUES (${esc(b.id)}, ${esc(b.name)});\n`;
+    }
+    sql += `\n`;
+
+    // 6. teachers
+    sql += `DROP TABLE IF EXISTS teachers;\nCREATE TABLE teachers (id TEXT PRIMARY KEY, name TEXT, phone TEXT, notes TEXT, created_at TEXT, updated_at TEXT);\n`;
+    for (const t of this.list("teachers")) {
+      sql += `INSERT INTO teachers (id, name, phone, notes, created_at, updated_at) VALUES (${esc(t.id)}, ${esc(t.name)}, ${esc(t.phone)}, ${esc(t.notes)}, ${esc(t.createdAt)}, ${esc(t.updatedAt)});\n`;
+    }
+    sql += `\n`;
+
+    // 7. subjects
+    sql += `DROP TABLE IF EXISTS subjects;\nCREATE TABLE subjects (id TEXT PRIMARY KEY, name TEXT, teacher_ids TEXT, shift_id TEXT, grade_id TEXT, price REAL, category TEXT, notes TEXT, student_ids TEXT, created_at TEXT, updated_at TEXT);\n`;
+    for (const s of this.list("subjects")) {
+      sql += `INSERT INTO subjects (id, name, teacher_ids, shift_id, grade_id, price, category, notes, student_ids, created_at, updated_at) VALUES (${esc(s.id)}, ${esc(s.name)}, ${esc(s.teacherIds)}, ${esc(s.shiftId)}, ${esc(s.gradeId)}, ${esc(s.price || 0)}, ${esc(s.category || 'school')}, ${esc(s.notes)}, ${esc(s.studentIds)}, ${esc(s.createdAt)}, ${esc(s.updatedAt)});\n`;
+    }
+    sql += `\n`;
+
+    // 8. students
+    sql += `DROP TABLE IF EXISTS students;\nCREATE TABLE students (id TEXT PRIMARY KEY, full_name TEXT, phone TEXT, gender TEXT, dob TEXT, guardian TEXT, address TEXT, notes TEXT, grade_id TEXT, class_id TEXT, enrolled TEXT, subject_ids TEXT, custom_fields TEXT, created_at TEXT, updated_at TEXT);\n`;
+    for (const st of this.list("students")) {
+      sql += `INSERT INTO students (id, full_name, phone, gender, dob, guardian, address, notes, grade_id, class_id, enrolled, subject_ids, custom_fields, created_at, updated_at) VALUES (${esc(st.id)}, ${esc(st.fullName)}, ${esc(st.phone)}, ${esc(st.gender)}, ${esc(st.dob)}, ${esc(st.guardian)}, ${esc(st.address)}, ${esc(st.notes)}, ${esc(st.gradeId)}, ${esc(st.classId)}, ${esc(st.enrolled)}, ${esc(st.subjectIds)}, ${esc(st.custom)}, ${esc(st.createdAt)}, ${esc(st.updatedAt)});\n`;
+    }
+    sql += `\n`;
+
+    // 9. sales
+    sql += `DROP TABLE IF EXISTS sales;\nCREATE TABLE sales (id TEXT PRIMARY KEY, ts TEXT, session TEXT, book TEXT, teacher_id TEXT, type_id TEXT, qty INTEGER, price REAL, total REAL, notes TEXT);\n`;
+    for (const sa of this.list("sales")) {
+      sql += `INSERT INTO sales (id, ts, session, book, teacher_id, type_id, qty, price, total, notes) VALUES (${esc(sa.id)}, ${esc(sa.ts)}, ${esc(sa.session)}, ${esc(sa.book)}, ${esc(sa.teacherId)}, ${esc(sa.typeId)}, ${esc(sa.qty)}, ${esc(sa.price)}, ${esc(sa.total)}, ${esc(sa.notes)});\n`;
+    }
+    sql += `\n`;
+
+    // 10. schedule
+    sql += `DROP TABLE IF EXISTS schedule;\nCREATE TABLE schedule (id TEXT PRIMARY KEY, grade_id TEXT, class_id TEXT, shift_id TEXT, day TEXT, start_time TEXT, end_time TEXT, subject_id TEXT, teacher_id TEXT, room TEXT, type TEXT, notes TEXT);\n`;
+    for (const sc of this.list("schedule")) {
+      sql += `INSERT INTO schedule (id, grade_id, class_id, shift_id, day, start_time, end_time, subject_id, teacher_id, room, type, notes) VALUES (${esc(sc.id)}, ${esc(sc.gradeId)}, ${esc(sc.classId)}, ${esc(sc.shiftId)}, ${esc(sc.day)}, ${esc(sc.startTime)}, ${esc(sc.endTime)}, ${esc(sc.subjectId)}, ${esc(sc.teacherId)}, ${esc(sc.room)}, ${esc(sc.type)}, ${esc(sc.notes)});\n`;
+    }
+    sql += `\nCOMMIT;\nPRAGMA foreign_keys = ON;\n`;
+
+    return sql;
+  },
+
+  async loadSqlJs() {
+    if (window.SQL_WASM) return window.SQL_WASM;
+    if (!window.initSqlJs) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js";
+        s.onload = resolve;
+        s.onerror = () => reject(new Error("Failed to load sql.js library from CDN. Please check network connection."));
+        document.head.appendChild(s);
+      });
+    }
+    window.SQL_WASM = await window.initSqlJs({
+      locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/${file}`
+    });
+    return window.SQL_WASM;
+  },
+
+  async exportSqlite() {
+    UI.toast("Generating SQLite binary database...", "info");
+    try {
+      const SQL = await this.loadSqlJs();
+      const db = new SQL.Database();
+      const sqlDump = this.exportSql();
+      db.run(sqlDump);
+      const binaryArray = db.export();
+      db.close();
+      const blob = new Blob([binaryArray], { type: "application/x-sqlite3" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `school_manager_${this.today()}.db`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      UI.toast("SQLite database (.db) downloaded successfully!", "success");
+    } catch (e) {
+      console.error("exportSqlite error", e);
+      UI.toast("Error generating SQLite DB: " + e.message, "error");
+    }
+  },
+
+  async importSqlite(file) {
+    UI.toast("Reading SQLite database file...", "info");
+    try {
+      const SQL = await this.loadSqlJs();
+      const arrayBuffer = await file.arrayBuffer();
+      const db = new SQL.Database(new Uint8Array(arrayBuffer));
+
+      const parseJson = str => { try { return str ? JSON.parse(str) : null; } catch(e) { return null; } };
+      const newData = this.defaults();
+
+      try {
+        const rows = db.exec("SELECT key, value FROM settings");
+        if (rows[0] && rows[0].values) {
+          rows[0].values.forEach(([k, v]) => { newData.settings[k] = parseJson(v) || v; });
+        }
+      } catch(e) {}
+
+      try {
+        const rows = db.exec("SELECT id, name, nameAr, start_time, end_time FROM shifts");
+        if (rows[0] && rows[0].values) {
+          newData.shifts = rows[0].values.map(([id, name, nameAr, start, end]) => ({ id, name, nameAr: nameAr || "", start: start || "", end: end || "" }));
+        }
+      } catch(e) {}
+
+      try {
+        const rows = db.exec("SELECT id, name FROM grades");
+        if (rows[0] && rows[0].values) {
+          newData.grades = rows[0].values.map(([id, name]) => ({ id, name }));
+        }
+      } catch(e) {}
+
+      try {
+        const rows = db.exec("SELECT id, name, grade_id FROM classes");
+        if (rows[0] && rows[0].values) {
+          newData.classes = rows[0].values.map(([id, name, gradeId]) => ({ id, name, gradeId: gradeId || "" }));
+        }
+      } catch(e) {}
+
+      try {
+        const rows = db.exec("SELECT id, name FROM book_types");
+        if (rows[0] && rows[0].values) {
+          newData.bookTypes = rows[0].values.map(([id, name]) => ({ id, name }));
+        }
+      } catch(e) {}
+
+      try {
+        const rows = db.exec("SELECT id, name, phone, notes, created_at, updated_at FROM teachers");
+        if (rows[0] && rows[0].values) {
+          newData.teachers = rows[0].values.map(([id, name, phone, notes, createdAt, updatedAt]) => ({ id, name, phone: phone || "", notes: notes || "", createdAt: createdAt || "", updatedAt: updatedAt || "" }));
+        }
+      } catch(e) {}
+
+      try {
+        const rows = db.exec("SELECT id, name, teacher_ids, shift_id, grade_id, price, category, notes, student_ids, created_at, updated_at FROM subjects");
+        if (rows[0] && rows[0].values) {
+          newData.subjects = rows[0].values.map(([id, name, teacherIds, shiftId, gradeId, price, category, notes, studentIds, createdAt, updatedAt]) => ({
+            id, name, teacherIds: parseJson(teacherIds) || [], shiftId: shiftId || "", gradeId: gradeId || "", price: +price || 0, category: category || "school", notes: notes || "", studentIds: parseJson(studentIds) || [], createdAt: createdAt || "", updatedAt: updatedAt || ""
+          }));
+        }
+      } catch(e) {
+        // Fallback for older .db files without category column
+        try {
+          const rows = db.exec("SELECT id, name, teacher_ids, shift_id, grade_id, price, notes, student_ids, created_at, updated_at FROM subjects");
+          if (rows[0] && rows[0].values) {
+            newData.subjects = rows[0].values.map(([id, name, teacherIds, shiftId, gradeId, price, notes, studentIds, createdAt, updatedAt]) => ({
+              id, name, teacherIds: parseJson(teacherIds) || [], shiftId: shiftId || "", gradeId: gradeId || "", price: +price || 0, category: "school", notes: notes || "", studentIds: parseJson(studentIds) || [], createdAt: createdAt || "", updatedAt: updatedAt || ""
+            }));
+          }
+        } catch(err) {}
+      }
+
+      try {
+        const rows = db.exec("SELECT id, full_name, phone, gender, dob, guardian, address, notes, grade_id, class_id, enrolled, subject_ids, custom_fields, created_at, updated_at FROM students");
+        if (rows[0] && rows[0].values) {
+          newData.students = rows[0].values.map(([id, fullName, phone, gender, dob, guardian, address, notes, gradeId, classId, enrolled, subjectIds, custom, createdAt, updatedAt]) => ({
+            id, fullName, phone: phone || "", gender: gender || "male", dob: dob || "", guardian: guardian || "", address: address || "", notes: notes || "", gradeId: gradeId || "", classId: classId || "", enrolled: enrolled || "", subjectIds: parseJson(subjectIds) || [], custom: parseJson(custom) || [], createdAt: createdAt || "", updatedAt: updatedAt || ""
+          }));
+        }
+      } catch(e) {}
+
+      try {
+        const rows = db.exec("SELECT id, ts, session, book, teacher_id, type_id, qty, price, total, notes FROM sales");
+        if (rows[0] && rows[0].values) {
+          newData.sales = rows[0].values.map(([id, ts, session, book, teacherId, typeId, qty, price, total, notes]) => ({
+            id, ts: ts || "", session: session || "", book: book || "", teacherId: teacherId || "", typeId: typeId || "", qty: +qty || 1, price: +price || 0, total: +total || 0, notes: notes || ""
+          }));
+        }
+      } catch(e) {}
+
+      try {
+        const rows = db.exec("SELECT id, grade_id, class_id, shift_id, day, start_time, end_time, subject_id, teacher_id, room, type, notes FROM schedule");
+        if (rows[0] && rows[0].values) {
+          newData.schedule = rows[0].values.map(([id, gradeId, classId, shiftId, day, startTime, endTime, subjectId, teacherId, room, type, notes]) => ({
+            id, gradeId: gradeId || "", classId: classId || "", shiftId: shiftId || "", day: day || "Sun", startTime: startTime || "", endTime: endTime || "", subjectId: subjectId || "", teacherId: teacherId || "", room: room || "", type: type || "theory", notes: notes || ""
+          }));
+        }
+      } catch(e) {}
+
+      db.close();
+      this.data = newData;
+      this.save();
+      UI.toast("SQLite database imported successfully!", "success");
+      setTimeout(() => window.location.reload(), 1000);
+    } catch (e) {
+      console.error("importSqlite error", e);
+      UI.toast("Error importing SQLite DB: " + e.message, "error");
+    }
   }
 };
+
+
+// ===== js/ui.js =====

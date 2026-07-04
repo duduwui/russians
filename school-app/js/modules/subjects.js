@@ -1,12 +1,17 @@
 const Subjects = {
-  filter: { q: "", gradeId: "" },
+  filter: { q: "", gradeId: "", category: "all" },
 
   render() {
     const q = this.filter.q.toLowerCase();
-    const rows = DB.list("subjects").filter(s => {
+    const allList = DB.list("subjects");
+    const langCount = allList.filter(s => s.category === "language").length;
+    const schoolCount = allList.length - langCount;
+
+    const rows = allList.filter(s => {
       if (q && !(s.name || "").toLowerCase().includes(q)) return false;
-      if (this.filter.gradeId) {
-        // "All grades" (gradeId="") subjects always match; specific ones must match
+      if (this.filter.category === "language" && s.category !== "language") return false;
+      if (this.filter.category === "school" && s.category === "language") return false;
+      if (this.filter.gradeId && this.filter.category !== "language") {
         if (s.gradeId && s.gradeId !== this.filter.gradeId) return false;
       }
       return true;
@@ -23,8 +28,20 @@ const Subjects = {
         </div>
       </div>
 
-      ${DB.list("subjects").length ? `
-        ${DB.list("grades").length ? `
+      <div class="filter-bar" style="margin-bottom:16px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" class="btn ${this.filter.category === 'all' || !this.filter.category ? 'primary' : ''}" data-fcat="all">
+          ${i18n.t("subjects.catAll")} (${UI.fmtNumber(allList.length)})
+        </button>
+        <button type="button" class="btn ${this.filter.category === 'language' ? 'primary' : ''}" data-fcat="language">
+          ${i18n.t("subjects.catLang")} (${UI.fmtNumber(langCount)})
+        </button>
+        <button type="button" class="btn ${this.filter.category === 'school' ? 'primary' : ''}" data-fcat="school">
+          ${i18n.t("subjects.catSchool")} (${UI.fmtNumber(schoolCount)})
+        </button>
+      </div>
+
+      ${allList.length ? `
+        ${DB.list("grades").length && this.filter.category !== 'language' ? `
           <div class="filter-bar">
             <div class="filter-group">
               <span class="filter-label">${i18n.t("students.grade")}</span>
@@ -40,7 +57,7 @@ const Subjects = {
       ${rows.length ? UI.table({
         columns: [
           { key: "name", label: i18n.t("subjects.name"),
-            render: r => `<strong>${UI.escape(r.name)}</strong>` },
+            render: r => `<strong>${UI.escape(r.name)}</strong> ${r.category === 'language' ? `<span class="tag muted" style="margin-inline-start:6px;font-size:10.5px">${i18n.t("subjects.catLang")}</span>` : `<span class="tag muted" style="margin-inline-start:6px;font-size:10.5px">${i18n.t("subjects.catSchool")}</span>`}` },
           { key: "grade", label: i18n.t("subjects.grade"),
             render: r => {
               const g = DB.get("grades", r.gradeId);
@@ -81,6 +98,12 @@ const Subjects = {
 
   bind() {
     document.getElementById("q")?.addEventListener("input", e => { this.filter.q = e.target.value; App.renderPageOnly(); });
+    document.querySelectorAll("[data-fcat]").forEach(b => {
+      if (b.tagName === "BUTTON") b.onclick = () => {
+        this.filter.category = b.dataset.fcat;
+        App.renderPageOnly();
+      };
+    });
     document.querySelectorAll("[data-fgrade]").forEach(b => {
       if (b.tagName === "BUTTON") b.onclick = () => {
         this.filter.gradeId = b.dataset.fgrade;
@@ -100,7 +123,7 @@ const Subjects = {
   },
 
   openForm(id) {
-    const s = id ? { ...DB.get("subjects", id) } : { studentIds: [], teacherIds: [] };
+    const s = id ? { ...DB.get("subjects", id) } : { studentIds: [], teacherIds: [], category: this.filter.category === "language" ? "language" : "school" };
     s.teacherIds = Array.isArray(s.teacherIds) ? [...s.teacherIds] : (s.teacherId ? [s.teacherId] : []);
     const chosenTeachers = new Set(s.teacherIds);
     const allTeachers = DB.list("teachers");
@@ -112,6 +135,13 @@ const Subjects = {
           <div class="field full">
             <label>${i18n.t("subjects.name")} <span class="req">*</span></label>
             <input data-f="name" value="${UI.escape(s.name || "")}"/>
+          </div>
+          <div class="field">
+            <label>${i18n.t("subjects.category")} <span class="req">*</span></label>
+            <select data-f="category">
+              <option value="school" ${s.category !== "language" ? "selected" : ""}>${i18n.t("subjects.catSchool")}</option>
+              <option value="language" ${s.category === "language" ? "selected" : ""}>${i18n.t("subjects.catLang")}</option>
+            </select>
           </div>
           <div class="field">
             <label>${i18n.t("subjects.grade")}</label>
@@ -130,7 +160,6 @@ const Subjects = {
             <label>${i18n.t("subjects.price")}</label>
             <input type="number" min="0" step="0.01" data-f="price" value="${+s.price || 0}"/>
           </div>
-          <div class="field"></div>
           <div class="field full">
             <label>${i18n.t("subjects.teacher")} <span style="color:var(--text-mute);font-weight:400;font-size:11.5px">— pick one or more</span></label>
             ${allTeachers.length ? `

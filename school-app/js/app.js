@@ -1,4 +1,3 @@
-// 7-tab flat navigation.
 const ROUTES = [
   { id: "dashboard", label: "nav.dashboard", icon: "dashboard", module: () => Dashboard },
   { id: "sales",     label: "nav.sales",     icon: "sales",     module: () => Sales     },
@@ -17,10 +16,10 @@ const App = {
     try { DB.load(); } catch (e) { console.error(e); DB.data = DB.defaults(); }
 
     // Language
-    const lang = (DB.data.settings && DB.data.settings.lang) || i18n.lang || "en";
+    const lang = (DB.data.settings && DB.data.settings.lang) || i18n.lang || "ku";
     i18n.lang = lang;
     document.documentElement.lang = lang;
-    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    document.documentElement.dir = (lang === "ar" || lang === "ku") ? "rtl" : "ltr";
 
     try { this.buildSidebar(); }    catch (e) { console.error("sidebar", e); }
     try { this.applySettings(); }   catch (e) { console.error("settings", e); }
@@ -163,3 +162,8 @@ window.Sales = Sales;
 window.Schedule = Schedule;
 window.Reports = Reports;
 window.Settings = Settings;
+
+
+</script>
+</body>
+</html>
