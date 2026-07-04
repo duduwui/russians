@@ -1,0 +1,4588 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORASIA — School Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+/* ==========================================================================
+   ORASIA School Manager — design system
+   Navy + garnet academic palette pulled from the ORASIA crest.
+   Every selector name below matches the JS exactly — only visual
+   treatment changed, no structural/behavioural classes were touched.
+   ========================================================================== */
+
+/* ============ Design tokens ============ */
+:root {
+  --bg:            #f3f4f7;
+  --panel:         #ffffff;
+  --panel-2:       #f7f8fb;
+  --border:        #e6e8ee;
+  --border-strong: #d3d7e0;
+  --text:          #17212e;
+  --text-soft:     #52606f;
+  --text-mute:     #8993a4;
+
+  /* Brand: navy + garnet, lifted from the ORASIA mark */
+  --primary:       #1c3454;
+  --primary-600:   #14283f;
+  --primary-soft:  #e8edf5;
+
+  --accent:        #8a2432;
+  --accent-600:    #6f1c28;
+  --accent-soft:   #fbeaec;
+
+  --success:       #1a8a5f;
+  --success-soft:  #e5f7ef;
+  --warning:       #b0781a;
+  --warning-soft:  #fbf1de;
+  --danger:        #b3261e;
+  --danger-soft:   #fbeae8;
+  --info:          #285e93;
+  --info-soft:     #e8f0f9;
+
+  --shadow-sm:  0 1px 2px rgba(20, 30, 45, .06);
+  --shadow-md:  0 6px 16px rgba(20, 30, 45, .09);
+  --shadow-lg:  0 20px 44px rgba(15, 22, 35, .16);
+
+  --radius:     12px;
+  --radius-sm:  8px;
+  --radius-lg:  18px;
+  --sidebar-w:  248px;
+  --topbar-h:   62px;
+
+  --font-display: "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-body:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-ar:      "Cairo", Tahoma, sans-serif;
+}
+
+[data-theme="dark"] {
+  --bg:            #0c1420;
+  --panel:         #121b29;
+  --panel-2:       #182337;
+  --border:        #253248;
+  --border-strong: #34435e;
+  --text:          #e8ecf3;
+  --text-soft:     #a7b1c2;
+  --text-mute:     #6c7890;
+
+  --primary:       #4d7bb5;
+  --primary-600:   #6f96c6;
+  --primary-soft:  #1c2c44;
+
+  --accent:        #d97785;
+  --accent-600:    #e39aa4;
+  --accent-soft:   #34212a;
+
+  --success-soft:  #123527;
+  --warning-soft:  #352a12;
+  --danger-soft:   #3a1c1a;
+  --info-soft:     #112a3f;
+
+  --shadow-sm:  0 1px 2px rgba(0,0,0,.35);
+  --shadow-md:  0 6px 18px rgba(0,0,0,.4);
+  --shadow-lg:  0 20px 48px rgba(0,0,0,.55);
+}
+
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+[hidden] { display: none !important; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+[dir="rtl"] body { font-family: var(--font-ar), var(--font-body); }
+
+button, input, select, textarea { font-family: inherit; font-size: 14px; }
+button { cursor: pointer; }
+a { color: var(--primary); text-decoration: none; }
+[data-theme="dark"] a { color: var(--primary-600); }
+
+h1, h2, h3, .page-title, .brand-name, .stat .val, .modal-head h3, .card-head h3 {
+  font-family: var(--font-display);
+}
+[dir="rtl"] h1, [dir="rtl"] h2, [dir="rtl"] h3,
+[dir="rtl"] .page-title, [dir="rtl"] .brand-name, [dir="rtl"] .stat .val,
+[dir="rtl"] .modal-head h3, [dir="rtl"] .card-head h3 { font-family: var(--font-ar); }
+
+/* ============ Icons ============ */
+.icon {
+  width: 18px; height: 18px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+  flex-shrink: 0; vertical-align: middle;
+}
+.icon.sm { width: 14px; height: 14px; }
+.icon.lg { width: 28px; height: 28px; stroke-width: 1.5; }
+
+/* ============ Layout ============ */
+#app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+}
+[dir="rtl"] #app { grid-template-columns: 1fr var(--sidebar-w); }
+
+/* Signature element: deep navy sidebar, gives the whole app an
+   institutional identity instead of a generic white admin shell. */
+.sidebar {
+  background: linear-gradient(185deg, var(--primary-600) 0%, #101c2d 100%);
+  border-left: 0;
+  display: flex; flex-direction: column;
+  position: sticky; top: 0;
+  height: 100vh; overflow-y: auto;
+  order: 1;
+  box-shadow: var(--shadow-lg);
+}
+[data-theme="dark"] .sidebar { background: linear-gradient(185deg, #101a29 0%, #0a121d 100%); }
+[dir="rtl"] .sidebar { border-left: 0; border-right: 0; order: 2; }
+
+.main { order: 2; }
+[dir="rtl"] .main { order: 1; }
+
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.brand-logo {
+  width: 42px; height: 42px; border-radius: 11px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-600));
+  color: #fff; display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 18px; font-family: var(--font-display);
+  box-shadow: 0 4px 12px rgba(138, 36, 50, .45);
+  overflow: hidden; flex-shrink: 0;
+}
+.brand-logo img { width: 100%; height: 100%; object-fit: cover; }
+.brand-name { font-weight: 700; font-size: 15px; color: #fff; line-height: 1.2; letter-spacing: -.01em; }
+.brand-sub  { font-size: 11px; color: rgba(255,255,255,.5); margin-top: 3px; }
+
+.nav { flex: 1; padding: 16px 12px; }
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 13px;
+  border-radius: var(--radius-sm);
+  color: rgba(255,255,255,.62);
+  font-size: 13.5px; font-weight: 500;
+  margin-bottom: 3px;
+  border-inline-start: 3px solid transparent;
+  transition: background .14s ease, color .14s ease, border-color .14s ease;
+  cursor: pointer;
+}
+.nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+.nav-item.active {
+  background: rgba(255,255,255,.1);
+  color: #fff; font-weight: 600;
+  border-inline-start-color: var(--accent);
+}
+.nav-item .ic { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; }
+
+.sidebar-footer {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  color: rgba(255,255,255,.4); font-size: 11px;
+}
+
+.main { display: flex; flex-direction: column; min-width: 0; }
+
+.topbar {
+  height: var(--topbar-h);
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 26px;
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar-left  { display: flex; align-items: center; gap: 14px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+
+.crumb { color: var(--text-soft); font-size: 13.5px; }
+.crumb .sep { margin: 0 6px; color: var(--text-mute); }
+.crumb #crumbPage { color: var(--text); font-weight: 600; }
+
+.icon-btn, .ghost-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-soft);
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background .12s, border-color .12s, color .12s;
+}
+.icon-btn:hover, .ghost-btn:hover {
+  background: var(--panel-2); color: var(--primary); border-color: var(--border);
+}
+
+.search-mini input {
+  background: var(--panel-2); border: 1px solid var(--border);
+  padding: 8px 14px 8px 34px; border-radius: 999px; min-width: 260px;
+  color: var(--text);
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238993a4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
+  background-repeat: no-repeat; background-position: 12px center;
+  transition: border-color .12s, background-color .12s, box-shadow .12s;
+}
+[dir="rtl"] .search-mini input { padding: 8px 34px 8px 14px; background-position: right 12px center; }
+.search-mini input:focus { outline: none; border-color: var(--primary); background-color: var(--panel); box-shadow: 0 0 0 3px var(--primary-soft); }
+
+.lang-switch {
+  display: flex; background: var(--panel-2);
+  border: 1px solid var(--border); border-radius: 999px; overflow: hidden;
+  padding: 2px;
+}
+.lang-switch button {
+  background: transparent; border: 0; color: var(--text-soft);
+  padding: 6px 12px; font-size: 12.5px; font-weight: 700;
+  border-radius: 999px;
+  transition: background .14s, color .14s;
+}
+.lang-switch button.active { background: var(--primary); color: white; }
+
+.content { padding: 28px 32px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+/* ============ Page header ============ */
+.page-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 22px; flex-wrap: wrap; gap: 12px;
+}
+.page-title { font-size: 24px; font-weight: 800; margin: 0; letter-spacing: -0.02em; color: var(--text); }
+.page-sub   { color: var(--text-mute); font-size: 13px; margin-top: 5px; }
+.page-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* ============ Buttons ============ */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 9px 16px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 600; font-size: 13.5px;
+  transition: background .12s, border-color .12s, transform .05s, box-shadow .12s;
+  white-space: nowrap;
+}
+.btn:hover  { background: var(--panel-2); box-shadow: var(--shadow-sm); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn.primary:hover { background: var(--primary-600); border-color: var(--primary-600); box-shadow: 0 4px 12px rgba(28,52,84,.28); }
+.btn.danger  { background: var(--danger);  color: #fff; border-color: var(--danger); }
+.btn.danger:hover  { background: #921e18; border-color: #921e18; }
+.btn.success { background: var(--success); color: #fff; border-color: var(--success); }
+.btn.ghost   { border-color: transparent; background: transparent; color: var(--text-soft); }
+.btn.ghost:hover { background: var(--panel-2); color: var(--text); }
+.btn.sm { padding: 6px 12px; font-size: 12.5px; }
+.btn.sm .icon { width: 13px; height: 13px; }
+.btn .icon { width: 15px; height: 15px; }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ============ Cards ============ */
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+.card-head {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px;
+}
+.card-head h3 { margin: 0; font-size: 15.5px; font-weight: 700; letter-spacing: -.01em; }
+.card-body { padding: 20px; }
+
+/* ============ Stat cards ============ */
+.stat-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px; margin-bottom: 24px;
+}
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow .16s, transform .16s;
+}
+.stat::before {
+  content: ""; position: absolute; inset-inline-start: 0; top: 0; bottom: 0;
+  width: 3px; background: var(--primary);
+}
+.stat:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.stat .lbl {
+  color: var(--text-mute); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.stat .val { font-size: 25px; font-weight: 800; margin-top: 7px; color: var(--text); letter-spacing: -0.02em; }
+.stat .sub { color: var(--text-mute); font-size: 11.5px; margin-top: 5px; }
+.stat-ic {
+  width: 40px; height: 40px; border-radius: 11px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--primary-soft); color: var(--primary);
+  flex-shrink: 0;
+}
+.stat.success::before { background: var(--success); }
+.stat.warning::before { background: var(--warning); }
+.stat.danger::before  { background: var(--danger); }
+.stat.info::before    { background: var(--info); }
+.stat.success .stat-ic { background: var(--success-soft); color: var(--success); }
+.stat.warning .stat-ic { background: var(--warning-soft); color: var(--warning); }
+.stat.danger  .stat-ic { background: var(--danger-soft);  color: var(--danger); }
+.stat.info    .stat-ic { background: var(--info-soft);    color: var(--info); }
+
+/* ============ Toolbar ============ */
+.toolbar {
+  display: flex; gap: 10px; margin-bottom: 18px; flex-wrap: wrap;
+  align-items: center;
+}
+.toolbar input, .toolbar select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 13px; color: var(--text);
+  transition: border-color .12s, box-shadow .12s;
+}
+.toolbar input:focus, .toolbar select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-soft); }
+.toolbar .search { flex: 1; min-width: 240px; }
+
+/* ============ Tables ============ */
+.table-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow-x: auto;
+  box-shadow: var(--shadow-sm);
+}
+table.data { width: 100%; border-collapse: collapse; }
+table.data th, table.data td {
+  padding: 13px 16px; text-align: start;
+  border-bottom: 1px solid var(--border);
+  font-size: 13.5px;
+}
+table.data th {
+  background: var(--panel-2);
+  color: var(--text-soft);
+  font-weight: 700;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .05em;
+}
+table.data td.num, table.data th.num { text-align: end; font-variant-numeric: tabular-nums; }
+table.data tbody tr { transition: background .1s; }
+table.data tbody tr:hover { background: var(--panel-2); }
+table.data tbody tr:last-child td { border-bottom: 0; }
+
+.tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 10px 3px 8px; border-radius: 999px;
+  font-size: 11.5px; font-weight: 700;
+  background: var(--primary-soft); color: var(--primary);
+}
+.tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+.tag.success { background: var(--success-soft); color: var(--success); }
+.tag.warning { background: var(--warning-soft); color: var(--warning); }
+.tag.danger  { background: var(--danger-soft);  color: var(--danger); }
+.tag.muted   { background: var(--panel-2); color: var(--text-mute); border: 1px solid var(--border); }
+.tag.muted::before { display: none; }
+
+/* ============ Empty states ============ */
+.empty {
+  text-align: center; padding: 54px 24px;
+  color: var(--text-mute);
+}
+.empty .em {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: var(--primary-soft); color: var(--primary);
+  margin-bottom: 14px;
+}
+.empty-text { font-size: 14.5px; color: var(--text-soft); margin-bottom: 4px; font-weight: 500; }
+.empty-cta  { font-size: 13px; margin-top: 14px; }
+
+/* ============ Forms ============ */
+.form-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.form-grid .full { grid-column: 1 / -1; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12.5px; font-weight: 700; color: var(--text-soft); }
+.field .req  { color: var(--accent); }
+.field input, .field select, .field textarea {
+  background: var(--panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 10px 13px;
+  color: var(--text);
+  width: 100%;
+  transition: border-color .12s, box-shadow .12s;
+}
+.field textarea { min-height: 80px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.field .hint { font-size: 11.5px; color: var(--text-mute); }
+.checklist {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  max-height: 260px; overflow-y: auto;
+  background: var(--panel);
+}
+.checklist label {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 13px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500; color: var(--text);
+  cursor: pointer;
+  transition: background .1s;
+}
+.checklist label:last-child { border-bottom: 0; }
+.checklist label:hover { background: var(--panel-2); }
+.checklist input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--primary); }
+.checklist .meta { color: var(--text-mute); font-size: 12px; margin-inline-start: auto; }
+
+/* ============ Modal ============ */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(12, 18, 28, .6);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; padding: 20px;
+  animation: fadeIn .15s;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modal {
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  width: 100%; max-width: 620px;
+  max-height: 90vh; display: flex; flex-direction: column;
+  animation: pop .18s;
+  overflow: hidden;
+}
+@keyframes pop { from { transform: scale(.96) translateY(6px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+.modal.wide { max-width: 880px; }
+.modal-head {
+  padding: 18px 22px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--panel-2);
+}
+.modal-head h3 { margin: 0; font-size: 16.5px; font-weight: 700; letter-spacing: -.01em; }
+.modal-body { padding: 22px; overflow-y: auto; }
+.modal-foot {
+  padding: 15px 22px; border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 8px;
+}
+
+/* ============ Toast ============ */
+.toast {
+  position: fixed; bottom: 24px; inset-inline-end: 24px;
+  background: var(--primary-600); color: #fff;
+  padding: 13px 20px; border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  z-index: 200; font-size: 13.5px; font-weight: 600;
+  animation: slideIn .2s;
+}
+@keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.toast.success { background: var(--success); color: #fff; }
+.toast.error   { background: var(--danger);  color: #fff; }
+
+/* ============ Split ============ */
+.split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.split-2fr-1fr { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+@media (max-width: 900px) {
+  .split, .split-2fr-1fr { grid-template-columns: 1fr; }
+}
+
+/* ============ Sales quick-add bar ============ */
+.quickbar-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+}
+.quickbar-title {
+  font-size: 11.5px; font-weight: 700; color: var(--text-mute);
+  text-transform: uppercase; letter-spacing: .05em;
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.quickbar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  align-items: end;
+}
+.quickbar .qb-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.quickbar .qb-book { grid-column: span 2; }
+.quickbar .qb-add  { grid-column: span 1; }
+.quickbar .qb-qty  { grid-column: span 1; }
+.quickbar label {
+  font-size: 11.5px; font-weight: 700; color: var(--text-soft);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.quickbar input, .quickbar select {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px; color: var(--text);
+  width: 100%;
+  min-width: 0;
+  transition: border-color .12s, box-shadow .12s, background .12s;
+}
+.quickbar input:focus, .quickbar select:focus {
+  outline: none; border-color: var(--primary);
+  background: var(--panel);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.quickbar select:disabled { opacity: .55; cursor: not-allowed; }
+.quickbar .add-btn { padding: 10px 18px; height: 40px; width: 100%; }
+.quickbar-wrap .kbd-hint { color: var(--text-mute); font-size: 11px; margin-top: 9px; }
+
+@media (max-width: 1200px) {
+  .quickbar { grid-template-columns: repeat(3, 1fr); }
+  .quickbar .qb-book { grid-column: span 3; }
+  .quickbar .qb-add  { grid-column: span 3; }
+}
+@media (max-width: 700px) {
+  .quickbar { grid-template-columns: 1fr 1fr; }
+  .quickbar .qb-book { grid-column: 1 / -1; }
+  .quickbar .qb-add  { grid-column: 1 / -1; }
+}
+
+/* ============ Custom fields (student form) ============ */
+.custom-fields { display: flex; flex-direction: column; gap: 6px; }
+.custom-fields .row {
+  display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: center;
+}
+.custom-fields .row input {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 9px 11px; color: var(--text);
+}
+.custom-fields .row input:focus {
+  outline: none; border-color: var(--primary);
+  background: var(--panel);
+}
+.custom-fields .empty-line {
+  color: var(--text-mute); font-size: 12.5px; padding: 4px 0;
+}
+
+/* Session summary bar */
+.session-bar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(120deg, var(--primary-soft), transparent 80%);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 16px;
+}
+.session-info { display: flex; gap: 26px; align-items: center; flex-wrap: wrap; }
+.session-info .item { display: flex; flex-direction: column; }
+.session-info .lbl { font-size: 11px; color: var(--text-mute); text-transform: uppercase; letter-spacing: .05em; font-weight: 700; }
+.session-info .val { font-size: 19px; font-weight: 800; color: var(--text); font-family: var(--font-display); }
+.session-info .val.big { font-size: 23px; color: var(--accent); }
+
+/* ============ Charts (SVG-based) ============ */
+.chart-bars {
+  display: flex; align-items: flex-end; gap: 5px;
+  height: 180px; padding: 12px 0;
+}
+.chart-bars .bar {
+  flex: 1;
+  background: linear-gradient(180deg, var(--primary), var(--primary-600));
+  border-radius: 5px 5px 0 0;
+  min-height: 2px;
+  position: relative;
+  transition: opacity .12s, background .12s;
+}
+.chart-bars .bar:hover { opacity: .85; background: linear-gradient(180deg, var(--accent), var(--accent-600)); }
+.chart-bars .bar .lbl {
+  position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+  font-size: 11px; color: var(--text); font-weight: 700;
+  white-space: nowrap;
+  opacity: 0; transition: opacity .12s;
+}
+.chart-bars .bar:hover .lbl { opacity: 1; }
+.chart-axis {
+  display: flex; gap: 4px; margin-top: 8px;
+  color: var(--text-mute); font-size: 10.5px;
+}
+.chart-axis > * {
+  flex: 1; text-align: center;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+.rank-list { display: flex; flex-direction: column; gap: 12px; }
+.rank-item {
+  display: grid; grid-template-columns: 26px 1fr auto; gap: 12px;
+  align-items: center;
+}
+.rank-item .rank {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--panel-2); color: var(--text-soft);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 12px;
+}
+.rank-item:nth-child(1) .rank { background: var(--warning-soft); color: var(--warning); }
+.rank-item:nth-child(2) .rank { background: var(--panel-2); color: var(--text-soft); }
+.rank-item:nth-child(3) .rank { background: var(--accent-soft); color: var(--accent); }
+.rank-item .name { font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rank-item .meta { color: var(--text-mute); font-size: 12px; }
+.rank-item .val  { font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+.rank-bar {
+  grid-column: 2; height: 6px; border-radius: 3px;
+  background: var(--panel-2); overflow: hidden; margin-top: 6px;
+}
+.rank-bar > div {
+  height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 3px;
+}
+
+/* ============ Delta indicators (period-over-period) ============ */
+.stat .delta {
+  display: inline-flex; align-items: center; gap: 3px;
+  font-weight: 700;
+}
+.stat .delta.up   { color: var(--success); }
+.stat .delta.down { color: var(--danger); }
+.stat .delta.flat { color: var(--text-mute); }
+.stat .delta .icon { width: 12px; height: 12px; }
+
+/* ============ Insights grid ============ */
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.insight-item {
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-inline-start: 3px solid var(--primary);
+}
+.insight-item.bestDay     { border-inline-start-color: var(--success); }
+.insight-item.bestBook    { border-inline-start-color: var(--warning); }
+.insight-item.bestTeacher { border-inline-start-color: var(--accent); }
+.insight-title {
+  font-size: 11px; font-weight: 700; letter-spacing: .05em;
+  text-transform: uppercase; color: var(--text-mute);
+  margin-bottom: 7px;
+}
+.insight-big {
+  font-size: 17.5px; font-weight: 700; color: var(--text);
+  line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-family: var(--font-display);
+}
+[dir="rtl"] .insight-big { font-family: var(--font-ar); }
+.insight-sub {
+  font-size: 12.5px; color: var(--text-soft);
+  margin-top: 4px;
+}
+
+/* ============ Log filters ============ */
+.log-filters {
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+}
+.log-filters input, .log-filters select {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 13px; color: var(--text);
+}
+.log-filters .search { flex: 1; min-width: 220px; }
+.log-filters input:focus, .log-filters select:focus {
+  outline: none; border-color: var(--primary);
+  background: var(--panel);
+}
+
+/* ============ Settings pieces ============ */
+.settings-section { margin-bottom: 24px; }
+.lookup-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.lookup-row {
+  display: grid; grid-template-columns: 1fr 100px 100px auto;
+  gap: 8px; align-items: center;
+  padding: 11px 13px;
+  background: var(--panel-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  transition: border-color .12s;
+}
+.lookup-row:hover { border-color: var(--border-strong); }
+.lookup-row input {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 11px; color: var(--text);
+}
+.lookup-row input:focus { outline: none; border-color: var(--primary); }
+.lookup-row.simple { grid-template-columns: 1fr auto; }
+.lookup-row.class-row { grid-template-columns: 1fr 160px auto; }
+.lookup-row select {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 8px 11px; color: var(--text);
+}
+.lookup-row select:focus { outline: none; border-color: var(--primary); }
+
+/* ============ Responsive ============ */
+@media (max-width: 640px) {
+  #app { grid-template-columns: 1fr; }
+  [dir="rtl"] #app { grid-template-columns: 1fr; }
+  .sidebar {
+    position: fixed; top: 0; inset-inline-end: 0;
+    z-index: 50; width: var(--sidebar-w);
+    box-shadow: var(--shadow-lg);
+    transform: translateX(100%);
+    transition: transform .2s;
+  }
+  [dir="rtl"] .sidebar { transform: translateX(-100%); }
+  body.sidebar-open .sidebar { transform: translateX(0); }
+  .search-mini input { min-width: 140px; }
+  .content { padding: 18px; }
+  .form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 900px) and (min-width: 641px) {
+  :root { --sidebar-w: 208px; }
+}
+
+/* ============ Print ============ */
+@media print {
+  .sidebar, .topbar, .page-actions, .toolbar { display: none !important; }
+  .content { padding: 0; max-width: 100%; }
+  .card, .table-wrap { border: 0; box-shadow: none; }
+  body { background: #fff; }
+  .stat { break-inside: avoid; }
+}
+
+/* ============ How-to guide ============ */
+.howto-step {
+  display: grid; grid-template-columns: 34px 1fr; gap: 14px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.howto-step:last-of-type { border-bottom: 0; }
+.howto-num {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+}
+.howto-title {
+  color: var(--text); font-weight: 700; margin-bottom: 4px; font-size: 14px;
+}
+kbd {
+  background: var(--panel-2); border: 1px solid var(--border-strong);
+  border-radius: 4px; padding: 1px 6px; font-family: inherit;
+  font-size: 11.5px; color: var(--text);
+}
+
+/* ============ Chip filter bar ============ */
+.filter-bar {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  align-items: center;
+}
+.filter-group {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+}
+.filter-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text-mute);
+}
+.chip-row { display: flex; gap: 4px; flex-wrap: wrap; }
+.chip {
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text-soft);
+  font-size: 13px; font-weight: 600;
+  transition: background .12s, color .12s, border-color .12s;
+  min-width: 32px;
+}
+.chip:hover { color: var(--text); border-color: var(--border-strong); }
+.chip.active {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 6px rgba(28, 52, 84, 0.3);
+}
+.filter-select {
+  padding: 8px 32px 8px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 13px; font-weight: 600;
+  min-width: 160px;
+  cursor: pointer;
+}
+.filter-select:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.filter-summary {
+  margin-inline-start: auto;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 13px;
+  background: var(--success-soft);
+  border: 1px solid var(--success);
+  border-radius: 999px;
+  color: var(--success);
+  font-size: 12.5px; font-weight: 700;
+}
+[data-theme="dark"] .filter-summary { color: #6ee7b7; }
+
+/* ============ Schedule grid ============ */
+.sched-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.sched-col { background: var(--panel); display: flex; flex-direction: column; }
+.sched-day-head {
+  background: var(--panel-2);
+  padding: 15px 16px;
+  font-weight: 700;
+  font-size: 13.5px;
+  text-align: center;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-display);
+}
+[dir="rtl"] .sched-day-head { font-family: var(--font-ar); }
+.sched-day-body {
+  padding: 10px;
+  display: flex; flex-direction: column; gap: 8px;
+  min-height: 180px;
+  flex: 1;
+}
+.sched-entry {
+  background: var(--primary-soft);
+  border: 1px solid transparent;
+  border-inline-start: 3px solid var(--primary);
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: transform .1s, box-shadow .12s, background .12s;
+}
+.sched-entry:hover { transform: translateY(-1px); box-shadow: var(--shadow-md); border-color: var(--primary); }
+.sched-entry.practical { background: color-mix(in srgb, var(--info-soft) 90%, transparent); border-inline-start-color: var(--info); }
+.sched-entry.break { background: var(--panel-2); border-inline-start-color: var(--text-mute); }
+.sched-entry-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 8px; margin-bottom: 4px;
+}
+.sched-title {
+  font-weight: 700; font-size: 13px; color: var(--text);
+  line-height: 1.3;
+}
+.sched-badge {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .05em;
+  padding: 2px 6px; border-radius: 3px;
+  background: rgba(255,255,255,0.55);
+  color: var(--text-soft);
+  flex-shrink: 0;
+}
+[data-theme="dark"] .sched-badge { background: rgba(0,0,0,.3); }
+.sched-entry-meta {
+  font-size: 11.5px; color: var(--text-soft);
+  display: flex; align-items: center; gap: 8px;
+  flex-wrap: wrap;
+}
+.sched-entry-meta .icon { width: 12px; height: 12px; }
+.sched-time {
+  padding: 1px 5px;
+  background: rgba(0,0,0,.05);
+  border-radius: 3px;
+  font-variant-numeric: tabular-nums;
+}
+[data-theme="dark"] .sched-time { background: rgba(255,255,255,.05); }
+.sched-entry-room {
+  font-size: 11px; color: var(--text-mute);
+  margin-top: 4px;
+  display: flex; align-items: center; gap: 4px;
+}
+.sched-entry-room .icon { width: 11px; height: 11px; }
+.sched-add {
+  display: flex; align-items: center; justify-content: center;
+  padding: 12px;
+  background: transparent;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: 8px;
+  color: var(--text-mute);
+  cursor: pointer;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.sched-add:hover { background: var(--primary-soft); color: var(--primary); border-color: var(--primary); border-style: solid; }
+.sched-add .icon { width: 18px; height: 18px; }
+
+/* ============ Type toggle (schedule form) ============ */
+.type-toggle {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+.type-btn {
+  padding: 8px 10px;
+  border: 1px solid transparent;
+  background: transparent;
+  border-radius: 6px;
+  color: var(--text-soft);
+  font-size: 13px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.type-btn:hover { color: var(--text); }
+.type-btn.active {
+  background: var(--panel);
+  color: var(--primary);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ============ Responsive schedule ============ */
+@media (max-width: 1100px) {
+  .sched-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 640px) {
+  .sched-grid { grid-template-columns: 1fr 1fr; }
+  .filter-summary { margin-inline-start: 0; }
+}
+
+/* ============ Focus rings ============ */
+button:focus-visible, a:focus-visible,
+input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+</style>
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo" id="brandLogo">S</div>
+        <div class="brand-text">
+          <div class="brand-name" id="brandName">School Manager</div>
+          <div class="brand-sub" data-i18n="brand.sub">School Manager</div>
+        </div>
+      </div>
+
+      <nav class="nav" id="sideNav"></nav>
+
+      <div class="sidebar-footer">
+        <div class="mini">v2.0 • <span data-i18n="footer.offline">Offline-ready</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn" id="menuToggle" title="Menu"></button>
+          <div class="crumb">
+            <span data-i18n="brand.short">School</span>
+            <span class="sep">/</span>
+            <span id="crumbPage" data-i18n="nav.dashboard">Dashboard</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="search-mini">
+            <input id="globalSearch" placeholder="Search…" data-i18n-ph="topbar.search" />
+          </div>
+          <button class="ghost-btn" id="themeToggle" title="Theme"></button>
+          <div class="lang-switch">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="ar">ع</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="content" id="content"></section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" id="modal" role="dialog" aria-modal="true">
+      <header class="modal-head">
+        <h3 id="modalTitle">Title</h3>
+        <button class="icon-btn" id="modalClose"></button>
+      </header>
+      <div class="modal-body" id="modalBody"></div>
+      <footer class="modal-foot" id="modalFoot"></footer>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div><script>
+
+// ===== js/icons.js =====
+const ICONS = {
+  dashboard: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+  users: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  user: '<path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  teacher: '<path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>',
+  subject: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  sales: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+  reports: '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>',
+
+  menu: '<line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>',
+  search: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
+  sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>',
+  moon: '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>',
+  close: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+  edit: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>',
+  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>',
+  save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>',
+  download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>',
+  print: '<polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>',
+  alert: '<path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+  check: '<polyline points="20 6 9 17 4 12"/>',
+  refresh: '<polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>',
+  play: '<polygon points="5 3 19 12 5 21 5 3"/>',
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  arrowUp: '<line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/>',
+  arrowDown: '<line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/>',
+  trending: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+  info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+  x: '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>',
+  clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+  location: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  monitor: '<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>',
+  bookOpen: '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>'
+};
+
+function icon(name, extraClass = "") {
+  const svg = ICONS[name];
+  if (!svg) return "";
+  return `<svg class="icon ${extraClass}" viewBox="0 0 24 24" aria-hidden="true">${svg}</svg>`;
+}
+
+
+// ===== js/i18n.js =====
+const I18N = {
+  en: {
+    "brand.sub": "School Manager",
+    "brand.short": "School",
+    "topbar.search": "Search students, subjects, teachers…",
+    "footer.offline": "Offline-ready",
+
+    "nav.dashboard": "Dashboard",
+    "nav.students":  "Students",
+    "nav.subjects":  "Subjects",
+    "nav.teachers":  "Teachers",
+    "nav.sales":     "Sales",
+    "nav.schedule":  "Schedule",
+    "nav.reports":   "Reports",
+    "nav.settings":  "Settings",
+
+    "sched.title":      "Schedule Builder",
+    "sched.sub":        "Design your weekly timetable",
+    "sched.pickClass":  "Pick a grade and class to see its schedule.",
+    "sched.pickGrade":  "Pick a grade first",
+    "sched.empty":      "No classes yet in this slot.",
+    "sched.add":        "Add to schedule",
+    "sched.edit":       "Edit entry",
+    "sched.subject":    "Subject",
+    "sched.instructor": "Instructor",
+    "sched.type":       "Type",
+    "sched.typeLecture":"Lecture",
+    "sched.typePractical":"Practical",
+    "sched.typeBreak":  "Break",
+    "sched.time":       "Class time",
+    "sched.start":      "Start",
+    "sched.end":        "End",
+    "sched.room":       "Room / Lab",
+    "sched.roomHint":   "e.g. Room 101, Lab A",
+    "sched.day":        "Day",
+    "sched.overlap":    "Overlaps with another class in this slot",
+    "sched.chooseSubject":"Choose a subject…",
+    "sched.chooseInstructor":"Select instructor…",
+    "sched.pickClassFirst": "Add grades and classes in Settings first",
+
+    "common.add": "Add",
+    "common.edit": "Edit",
+    "common.delete": "Delete",
+    "common.save": "Save",
+    "common.cancel": "Cancel",
+    "common.close": "Close",
+    "common.search": "Search…",
+    "common.name": "Name",
+    "common.notes": "Notes",
+    "common.total": "Total",
+    "common.date": "Date",
+    "common.time": "Time",
+    "common.all": "All",
+    "common.none": "None",
+    "common.optional": "optional",
+    "common.confirm": "Confirm",
+    "common.confirmDelete": "Delete this item?",
+    "common.saved": "Saved",
+    "common.deleted": "Deleted",
+    "common.noResults": "No results",
+    "common.print": "Print",
+    "common.export": "Export",
+    "common.quantity": "Quantity",
+    "common.price": "Price",
+    "common.count": "Count",
+    "common.value": "Value",
+    "common.today": "Today",
+    "common.week":  "This week",
+    "common.month": "This month",
+    "common.actions": "Actions",
+    "common.from": "From",
+    "common.to":   "To",
+    "common.remove": "Remove",
+    "common.saveAdd": "Save & add another",
+    "common.done":    "Done",
+    "common.select":  "Select…",
+    "common.reset":   "Reset",
+    "common.filter":  "Filter",
+
+    "dash.title": "Dashboard",
+    "dash.students": "Students",
+    "dash.teachers": "Teachers",
+    "dash.subjects": "Subjects",
+    "dash.today":    "Today's sales",
+    "dash.month":    "This month",
+    "dash.recent":   "Recent sales",
+    "dash.top":      "Top selling books",
+    "dash.empty":    "Nothing here yet. Add students, subjects and record sales to see insights.",
+    "dash.quick":    "Quick actions",
+
+    "students.title":     "Students",
+    "students.sub":       "Enrolled students",
+    "students.add":       "Add student",
+    "students.fullName":  "Full name",
+    "students.phone":     "Phone",
+    "students.gender":    "Gender",
+    "students.male":      "Male",
+    "students.female":    "Female",
+    "students.dob":       "Date of birth",
+    "students.guardian":  "Guardian name",
+    "students.address":   "Address",
+    "students.enrolled":  "Enrolled",
+    "students.subjects":  "Enrolled subjects",
+    "students.pickSubjects": "Pick subjects for this student",
+    "students.none":      "No students yet",
+    "students.emptyCta":  "Add your first student to get started.",
+    "students.custom":    "Extra info",
+    "students.addField":  "Add field",
+    "students.fieldLabel":"Label (e.g. Blood type)",
+    "students.fieldValue":"Value",
+    "students.grade":     "Grade",
+    "students.class":     "Class",
+    "students.pickClassHint": "Pick a grade first",
+
+    "subjects.title":     "Subjects",
+    "subjects.sub":       "Classes / courses you teach",
+    "subjects.add":       "Add subject",
+    "subjects.name":      "Subject name",
+    "subjects.teacher":   "Teacher",
+    "subjects.shift":     "Shift",
+    "subjects.price":     "Monthly fee",
+    "subjects.students":  "Students",
+    "subjects.manage":    "Manage students",
+    "subjects.none":      "No subjects yet",
+    "subjects.emptyCta":  "Add a subject (e.g. \"Math — Grade 10\") to organize students.",
+    "subjects.enrolled":  "Enrolled students",
+    "subjects.grade":     "Target grade",
+    "subjects.gradeAll":  "All grades",
+
+    "teachers.title":     "Teachers",
+    "teachers.sub":       "Instructors",
+    "teachers.add":       "Add teacher",
+    "teachers.phone":     "Phone",
+    "teachers.subjects":  "Subjects",
+    "teachers.none":      "No teachers yet",
+    "teachers.emptyCta":  "Add teachers so you can assign them to subjects and book sales.",
+
+    "sales.title":        "Sales",
+    "sales.sub":          "Today's book sales",
+    "sales.book":         "Book",
+    "sales.teacher":      "Teacher",
+    "sales.type":         "Type",
+    "sales.qty":          "Qty",
+    "sales.price":        "Unit price",
+    "sales.total":        "Total",
+    "sales.add":          "Add",
+    "sales.newDay":       "Start new day",
+    "sales.newDayConfirm":"Close the current day and start fresh? Today's sales stay in Reports.",
+    "sales.session":      "Session",
+    "sales.started":      "Started",
+    "sales.count":        "records",
+    "sales.grand":        "Grand total",
+    "sales.empty":        "No sales recorded for this session yet",
+    "sales.emptyCta":     "Enter a book above and press Enter or click Add.",
+    "sales.hintBook":     "Book name (autocompletes from history)",
+    "sales.summary":      "Session summary",
+
+    "reports.title":      "Reports",
+    "reports.sub":        "Insights from your sales history",
+    "reports.range":      "Range",
+    "reports.rangeToday": "Today",
+    "reports.rangeWeek":  "Last 7 days",
+    "reports.rangeMonth": "Last 30 days",
+    "reports.rangeAll":   "All time",
+    "reports.rangeCustom":"Custom",
+    "reports.revenue":    "Revenue",
+    "reports.transactions":"Transactions",
+    "reports.avg":        "Avg. sale",
+    "reports.units":      "Units sold",
+    "reports.trend":      "Daily trend",
+    "reports.topBooks":   "Top books",
+    "reports.topTeachers":"Top teachers by revenue",
+    "reports.byType":     "By book type",
+    "reports.byGrade":    "By grade",
+    "reports.byDow":      "By day of week",
+    "reports.detail":     "Detailed transactions",
+    "reports.empty":      "No sales in this range",
+    "reports.log":        "Sales log",
+    "reports.logSub":     "Every recorded transaction — filter and search",
+    "reports.vsPrev":     "vs previous",
+    "reports.bestDay":    "Best day",
+    "reports.bestBook":   "Best-selling book",
+    "reports.bestTeacher":"Top teacher",
+    "reports.insights":   "Key insights",
+    "reports.filterBook": "Search book…",
+    "reports.filterTeacher":"Teacher",
+    "reports.filterType": "Type",
+    "reports.showing":    "Showing",
+    "reports.of":         "of",
+    "reports.records":    "records",
+
+    "settings.title":     "Settings",
+    "settings.org":       "Organization",
+    "settings.orgName":   "Name",
+    "settings.currency":  "Currency",
+    "settings.logo":      "Logo",
+    "settings.uploadLogo":"Upload image",
+    "settings.appearance":"Appearance",
+    "settings.theme":     "Theme",
+    "settings.themeLight":"Light",
+    "settings.themeDark": "Dark",
+    "settings.lang":      "Language",
+    "settings.lookups":   "Lookups",
+    "settings.shifts":    "Shifts",
+    "settings.bookTypes": "Book types",
+    "settings.grades":    "Grades",
+    "settings.classes":   "Classes",
+    "settings.shift.name":"Name",
+    "settings.shift.start":"Start",
+    "settings.shift.end": "End",
+    "settings.class.grade":"Grade",
+    "settings.data":      "Data",
+    "settings.backup":    "Download backup",
+    "settings.restore":   "Restore backup",
+    "settings.reset":     "Erase all data",
+    "settings.resetConfirm":"Erase EVERYTHING — students, subjects, teachers, sales? This cannot be undone.",
+    "settings.danger":    "Danger zone",
+    "settings.sample":    "Load sample data",
+    "settings.sampleBtn": "Load small demo",
+    "settings.sampleDesc":"Adds 3 teachers, 3 subjects, 5 students, and 4 sales so you can explore the app.",
+    "settings.sampleAdded":"Sample data loaded",
+    "settings.howto":     "How to use",
+    "settings.howtoBtn":  "Open guide"
+  },
+
+  ar: {
+    "brand.sub": "إدارة المدرسة",
+    "brand.short": "المدرسة",
+    "topbar.search": "بحث عن طالب، مادة، معلم…",
+    "footer.offline": "يعمل دون إنترنت",
+
+    "nav.dashboard": "لوحة التحكم",
+    "nav.students":  "الطلاب",
+    "nav.subjects":  "المواد",
+    "nav.teachers":  "المعلمون",
+    "nav.sales":     "المبيعات",
+    "nav.reports":   "التقارير",
+    "nav.settings":  "الإعدادات",
+
+    "common.add": "إضافة",
+    "common.edit": "تعديل",
+    "common.delete": "حذف",
+    "common.save": "حفظ",
+    "common.cancel": "إلغاء",
+    "common.close": "إغلاق",
+    "common.search": "بحث…",
+    "common.name": "الاسم",
+    "common.notes": "ملاحظات",
+    "common.total": "المجموع",
+    "common.date": "التاريخ",
+    "common.time": "الوقت",
+    "common.all": "الكل",
+    "common.none": "لا يوجد",
+    "common.optional": "اختياري",
+    "common.confirm": "تأكيد",
+    "common.confirmDelete": "حذف هذا العنصر؟",
+    "common.saved": "تم الحفظ",
+    "common.deleted": "تم الحذف",
+    "common.noResults": "لا توجد نتائج",
+    "common.print": "طباعة",
+    "common.export": "تصدير",
+    "common.quantity": "الكمية",
+    "common.price": "السعر",
+    "common.count": "العدد",
+    "common.value": "القيمة",
+    "common.today": "اليوم",
+    "common.week":  "هذا الأسبوع",
+    "common.month": "هذا الشهر",
+    "common.actions": "إجراءات",
+    "common.from": "من",
+    "common.to":   "إلى",
+    "common.remove": "إزالة",
+
+    "dash.title": "لوحة التحكم",
+    "dash.students": "الطلاب",
+    "dash.teachers": "المعلمون",
+    "dash.subjects": "المواد",
+    "dash.today":    "مبيعات اليوم",
+    "dash.month":    "هذا الشهر",
+    "dash.recent":   "أحدث المبيعات",
+    "dash.top":      "الكتب الأكثر مبيعًا",
+    "dash.empty":    "لا يوجد شيء بعد. أضف الطلاب والمواد وسجّل المبيعات لعرض التحليلات.",
+    "dash.quick":    "إجراءات سريعة",
+
+    "students.title":     "الطلاب",
+    "students.sub":       "الطلاب المسجلون",
+    "students.add":       "إضافة طالب",
+    "students.fullName":  "الاسم الكامل",
+    "students.phone":     "الهاتف",
+    "students.gender":    "الجنس",
+    "students.male":      "ذكر",
+    "students.female":    "أنثى",
+    "students.dob":       "تاريخ الميلاد",
+    "students.guardian":  "اسم ولي الأمر",
+    "students.address":   "العنوان",
+    "students.enrolled":  "تاريخ التسجيل",
+    "students.subjects":  "المواد المسجل بها",
+    "students.pickSubjects":"اختر المواد لهذا الطالب",
+    "students.none":      "لا يوجد طلاب بعد",
+    "students.emptyCta":  "أضف أول طالب لبدء الاستخدام.",
+    "students.custom":    "معلومات إضافية",
+    "students.addField":  "إضافة حقل",
+    "students.fieldLabel":"العنوان (مثل: فصيلة الدم)",
+    "students.fieldValue":"القيمة",
+    "students.grade":     "المرحلة",
+    "students.class":     "الصف",
+    "students.pickClassHint":"اختر المرحلة أولاً",
+
+    "subjects.title":     "المواد",
+    "subjects.sub":       "المواد والحصص",
+    "subjects.add":       "إضافة مادة",
+    "subjects.name":      "اسم المادة",
+    "subjects.teacher":   "المعلم",
+    "subjects.shift":     "الفترة",
+    "subjects.price":     "الرسم الشهري",
+    "subjects.students":  "الطلاب",
+    "subjects.manage":    "إدارة الطلاب",
+    "subjects.none":      "لا توجد مواد بعد",
+    "subjects.emptyCta":  "أضف مادة (مثل: رياضيات — الصف العاشر) لتنظيم الطلاب.",
+    "subjects.enrolled":  "الطلاب المسجلون",
+    "subjects.grade":     "المرحلة المستهدفة",
+    "subjects.gradeAll":  "جميع المراحل",
+
+    "teachers.title":     "المعلمون",
+    "teachers.sub":       "الكادر التعليمي",
+    "teachers.add":       "إضافة معلم",
+    "teachers.phone":     "الهاتف",
+    "teachers.subjects":  "المواد",
+    "teachers.none":      "لا يوجد معلمون بعد",
+    "teachers.emptyCta":  "أضف المعلمين لتعيينهم على المواد والمبيعات.",
+
+    "sales.title":        "المبيعات",
+    "sales.sub":          "مبيعات كتب اليوم",
+    "sales.book":         "الكتاب",
+    "sales.teacher":      "المعلم",
+    "sales.type":         "النوع",
+    "sales.qty":          "الكمية",
+    "sales.price":        "سعر الوحدة",
+    "sales.total":        "المجموع",
+    "sales.add":          "إضافة",
+    "sales.newDay":       "بدء يوم جديد",
+    "sales.newDayConfirm":"إغلاق اليوم الحالي والبدء من جديد؟ ستبقى المبيعات محفوظة في التقارير.",
+    "sales.session":      "الجلسة",
+    "sales.started":      "بدأت",
+    "sales.count":        "سجلات",
+    "sales.grand":        "الإجمالي الكلي",
+    "sales.empty":        "لم يتم تسجيل أي مبيعات لهذه الجلسة",
+    "sales.emptyCta":     "اكتب اسم كتاب أعلاه واضغط Enter أو زر الإضافة.",
+    "sales.hintBook":     "اسم الكتاب (اقتراح تلقائي من السجلات)",
+    "sales.summary":      "ملخص الجلسة",
+
+    "reports.title":      "التقارير",
+    "reports.sub":        "تحليلات من سجل المبيعات",
+    "reports.range":      "الفترة",
+    "reports.rangeToday": "اليوم",
+    "reports.rangeWeek":  "آخر ٧ أيام",
+    "reports.rangeMonth": "آخر ٣٠ يومًا",
+    "reports.rangeAll":   "كل الوقت",
+    "reports.rangeCustom":"مخصصة",
+    "reports.revenue":    "الإيرادات",
+    "reports.transactions":"المعاملات",
+    "reports.avg":        "متوسط البيع",
+    "reports.units":      "الوحدات المباعة",
+    "reports.trend":      "الاتجاه اليومي",
+    "reports.topBooks":   "أفضل الكتب",
+    "reports.topTeachers":"أفضل المعلمين بحسب الإيرادات",
+    "reports.byType":     "حسب النوع",
+    "reports.byGrade":    "حسب المرحلة",
+    "reports.byDow":      "حسب يوم الأسبوع",
+    "reports.detail":     "تفاصيل المعاملات",
+    "reports.empty":      "لا توجد مبيعات في هذه الفترة",
+
+    "settings.title":     "الإعدادات",
+    "settings.org":       "المؤسسة",
+    "settings.orgName":   "الاسم",
+    "settings.currency":  "العملة",
+    "settings.logo":      "الشعار",
+    "settings.uploadLogo":"رفع صورة",
+    "settings.appearance":"المظهر",
+    "settings.theme":     "السمة",
+    "settings.themeLight":"فاتح",
+    "settings.themeDark": "داكن",
+    "settings.lang":      "اللغة",
+    "settings.lookups":   "القوائم",
+    "settings.shifts":    "الفترات",
+    "settings.bookTypes": "أنواع الكتب",
+    "settings.grades":    "المراحل",
+    "settings.classes":   "الصفوف",
+    "settings.shift.name":"الاسم",
+    "settings.shift.start":"البداية",
+    "settings.shift.end": "النهاية",
+    "settings.class.grade":"المرحلة",
+    "settings.data":      "البيانات",
+    "settings.backup":    "تحميل نسخة احتياطية",
+    "settings.restore":   "استعادة نسخة",
+    "settings.reset":     "مسح كل البيانات",
+    "settings.resetConfirm":"مسح كل شيء — الطلاب، المواد، المعلمون، المبيعات؟ لا يمكن التراجع.",
+    "settings.danger":    "منطقة الخطر",
+    "settings.sample":    "تحميل بيانات تجريبية",
+    "settings.sampleBtn": "تحميل بيانات صغيرة",
+    "settings.sampleDesc":"يضيف ٣ معلمين و٣ مواد و٥ طلاب و٤ مبيعات لاستكشاف التطبيق.",
+    "settings.sampleAdded":"تم تحميل البيانات التجريبية",
+    "settings.howto":     "طريقة الاستخدام",
+    "settings.howtoBtn":  "فتح الدليل"
+  }
+};
+
+function _safeGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function _safeSet(k,v){ try { localStorage.setItem(k,v); } catch (e) {} }
+
+const i18n = {
+  lang: _safeGet("app.lang") || "en",
+  t(key) { return (I18N[this.lang] && I18N[this.lang][key]) || I18N.en[key] || key; },
+  setLang(lang) {
+    this.lang = lang;
+    _safeSet("app.lang", lang);
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+    this.apply();
+    if (window.App && window.App.rerender) window.App.rerender();
+  },
+  apply() {
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      el.textContent = this.t(el.getAttribute("data-i18n"));
+    });
+    document.querySelectorAll("[data-i18n-ph]").forEach(el => {
+      el.setAttribute("placeholder", this.t(el.getAttribute("data-i18n-ph")));
+    });
+    document.querySelectorAll(".lang-switch button").forEach(b => {
+      b.classList.toggle("active", b.dataset.lang === this.lang);
+    });
+  }
+};
+
+
+// ===== js/db.js =====
+// LocalStorage-backed DB with in-memory fallback for sandboxed environments.
+//
+// Data model (simplified):
+//   settings   { orgName, logo, theme, lang, currency }
+//   shifts     [{ id, name, nameAr, start, end }]        // used by subjects (lookup, in Settings)
+//   bookTypes  [{ id, name }]                            // e.g. "Full Course", "First Half" (lookup)
+//   teachers   [{ id, name, phone, notes }]
+//   subjects   [{ id, name, teacherId, shiftId, price, notes, studentIds:[] }]
+//   students   [{ id, fullName, phone, gender, dob, guardian, address, notes, subjectIds:[], enrolled }]
+//   sales      [{ id, ts, session, book, teacherId, typeId, qty, price, total, notes }]
+//   session    { current: "YYYY-MM-DD", startedAt }     // "day" bucket for the sales tab
+
+const DB = {
+  KEY: "school.db.v2",
+  data: null,
+  _mem: null,
+  _storageOk: null,
+
+  storageAvailable() {
+    if (this._storageOk !== null) return this._storageOk;
+    try {
+      localStorage.setItem("__p__", "1");
+      localStorage.removeItem("__p__");
+      this._storageOk = true;
+    } catch (e) {
+      this._storageOk = false;
+      console.warn("localStorage unavailable — using in-memory store");
+    }
+    return this._storageOk;
+  },
+  _read()  { return this.storageAvailable() ? localStorage.getItem(this.KEY) : this._mem; },
+  _write(v){ if (this.storageAvailable()) localStorage.setItem(this.KEY, v); else this._mem = v; },
+
+  defaults() {
+    return {
+      settings: {
+        orgName: "",
+        logo: null,
+        theme: "light",
+        lang: "en",
+        currency: "IQD"
+      },
+      shifts:    [],
+      grades:    [],
+      classes:   [],   // { id, name, gradeId }
+      bookTypes: [
+        { id: "type_full",  name: "Full Course" },
+        { id: "type_first", name: "First Half"  },
+        { id: "type_second",name: "Second Half" }
+      ],
+      teachers:  [],
+      subjects:  [],   // may have gradeId (optional target grade)
+      students:  [],   // gradeId + classId
+      sales:     [],
+      schedule:  [],   // { id, gradeId, classId, shiftId, day, startTime, endTime, subjectId, teacherId, room, type, notes }
+      session:   { current: null, startedAt: null }
+    };
+  },
+
+  load() {
+    try {
+      const raw = this._read();
+      if (raw) {
+        this.data = JSON.parse(raw);
+        const d = this.defaults();
+        for (const k of Object.keys(d)) {
+          if (!(k in this.data)) this.data[k] = d[k];
+        }
+        this.data.settings = { ...d.settings, ...(this.data.settings || {}) };
+        // Migration: subject.teacherId (single) → subject.teacherIds (array)
+        this.list("subjects").forEach(sub => {
+          if (!Array.isArray(sub.teacherIds)) {
+            sub.teacherIds = sub.teacherId ? [sub.teacherId] : [];
+          }
+        });
+      } else {
+        this.data = this.defaults();
+        this.save();
+      }
+    } catch (e) {
+      console.error("DB load", e);
+      this.data = this.defaults();
+    }
+  },
+
+  save() {
+    try {
+      this._write(JSON.stringify(this.data));
+    } catch (e) {
+      console.error("DB save", e);
+      this._storageOk = false;
+      this._mem = JSON.stringify(this.data);
+      if (typeof UI !== "undefined") {
+        UI.toast("Storage unavailable — changes won't persist", "error");
+      }
+    }
+  },
+
+  reset() {
+    this.data = this.defaults();
+    this.save();
+  },
+
+  // Small demo dataset (3 teachers, 3 subjects, 5 students, 4 sales)
+  loadSample() {
+    // Shifts
+    const morning = this.upsert("shifts", { name: "Morning", start: "08:00", end: "12:00" });
+    const evening = this.upsert("shifts", { name: "Evening", start: "16:00", end: "20:00" });
+
+    // Grades + Classes
+    const g11 = this.upsert("grades", { name: "Grade 11" });
+    const g12 = this.upsert("grades", { name: "Grade 12" });
+    const c11a = this.upsert("classes", { name: "11-A", gradeId: g11.id });
+    const c12a = this.upsert("classes", { name: "12-A", gradeId: g12.id });
+    const c12b = this.upsert("classes", { name: "12-B", gradeId: g12.id });
+
+    // Teachers
+    const t1 = this.upsert("teachers", { name: "Ahmed Hassan",  phone: "0770-100-0001", notes: "Math & Physics" });
+    const t2 = this.upsert("teachers", { name: "Sara Mahmoud",  phone: "0770-100-0002", notes: "English" });
+    const t3 = this.upsert("teachers", { name: "Omar Ali",      phone: "0770-100-0003", notes: "Chemistry" });
+
+    // Subjects (with target grade & possibly multiple teachers)
+    const s1 = this.upsert("subjects", { name: "Math — Grade 12", teacherIds: [t1.id], shiftId: morning.id, gradeId: g12.id, price: 50000, notes: "Preparation for final exam" });
+    const s2 = this.upsert("subjects", { name: "English Intensive", teacherIds: [t2.id], shiftId: evening.id, gradeId: "", price: 40000, notes: "" });
+    const s3 = this.upsert("subjects", { name: "Chemistry — Grade 12", teacherIds: [t3.id, t1.id], shiftId: morning.id, gradeId: g12.id, price: 45000, notes: "Also taught by Ahmed for extra sections" });
+
+    // Students — with grade & class
+    const st1 = this.upsert("students", { fullName: "Layla Ibrahim", phone: "0750-111-0001", gender: "female", gradeId: g12.id, classId: c12a.id, enrolled: this.today(), custom: [{ label: "Guardian", value: "Ibrahim Karim" }] });
+    const st2 = this.upsert("students", { fullName: "Yousif Karim",  phone: "0750-111-0002", gender: "male",   gradeId: g12.id, classId: c12a.id, enrolled: this.today() });
+    const st3 = this.upsert("students", { fullName: "Noor Salim",    phone: "0750-111-0003", gender: "female", gradeId: g11.id, classId: c11a.id, enrolled: this.today() });
+    const st4 = this.upsert("students", { fullName: "Hassan Ali",    phone: "0750-111-0004", gender: "male",   gradeId: g12.id, classId: c12b.id, enrolled: this.today() });
+    const st5 = this.upsert("students", { fullName: "Fatima Zaki",   phone: "0750-111-0005", gender: "female", gradeId: g11.id, classId: c11a.id, enrolled: this.today() });
+
+    // Enrollments (M2M)
+    this.setStudentSubjects(st1.id, [s1.id, s3.id]);
+    this.setStudentSubjects(st2.id, [s1.id]);
+    this.setStudentSubjects(st3.id, [s2.id]);
+    this.setStudentSubjects(st4.id, [s1.id, s2.id]);
+    this.setStudentSubjects(st5.id, [s3.id, s2.id]);
+
+    // A few sample sales for today's session
+    this.addSale({ book: "Math — Full Course", teacherId: t1.id, typeId: "type_full",   qty: 2, price: 15000 });
+    this.addSale({ book: "Physics Part 1",     teacherId: t1.id, typeId: "type_first",  qty: 1, price: 8000  });
+    this.addSale({ book: "English Grammar",    teacherId: t2.id, typeId: "type_full",   qty: 3, price: 12000 });
+    this.addSale({ book: "Chemistry Workbook", teacherId: t3.id, typeId: "type_second", qty: 1, price: 10000 });
+
+    // Sample schedule for Grade 12 / 12-A / Morning
+    this.upsert("schedule", { gradeId: g12.id, classId: c12a.id, shiftId: morning.id, day: "Sun", startTime: "08:30", endTime: "10:00", subjectId: s1.id, teacherId: t1.id, room: "Room 101" });
+    this.upsert("schedule", { gradeId: g12.id, classId: c12a.id, shiftId: morning.id, day: "Sun", startTime: "10:15", endTime: "11:45", subjectId: s3.id, teacherId: t3.id, room: "Room 203" });
+    this.upsert("schedule", { gradeId: g12.id, classId: c12a.id, shiftId: morning.id, day: "Mon", startTime: "08:30", endTime: "10:00", subjectId: s1.id, teacherId: t1.id, room: "Room 101" });
+    this.upsert("schedule", { gradeId: g12.id, classId: c12a.id, shiftId: morning.id, day: "Wed", startTime: "10:15", endTime: "11:45", subjectId: s3.id, teacherId: t1.id, room: "Room 203" });
+    this.upsert("schedule", { gradeId: g11.id, classId: c11a.id, shiftId: morning.id, day: "Tue", startTime: "08:30", endTime: "10:00", subjectId: s2.id, teacherId: t2.id, room: "Room 105" });
+
+    this.save();
+  },
+
+  today() { return new Date().toISOString().slice(0, 10); },
+  now()   { return new Date().toISOString(); },
+
+  newId(prefix = "id") {
+    return `${prefix}_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
+  },
+
+  // ---------- Generic CRUD ----------
+  list(entity) { return this.data[entity] || []; },
+  get(entity, id) {
+    if (!id) return null;
+    return (this.data[entity] || []).find(x => x.id === id) || null;
+  },
+  upsert(entity, item) {
+    const arr = this.data[entity];
+    if (!arr) throw new Error("Unknown entity: " + entity);
+    if (!item.id) {
+      item.id = this.newId(entity.slice(0, 3));
+      item.createdAt = this.now();
+      arr.push(item);
+    } else {
+      const idx = arr.findIndex(x => x.id === item.id);
+      if (idx >= 0) arr[idx] = { ...arr[idx], ...item, updatedAt: this.now() };
+      else { item.createdAt = this.now(); arr.push(item); }
+    }
+    this.save();
+    return item;
+  },
+  remove(entity, id) {
+    this.data[entity] = (this.data[entity] || []).filter(x => x.id !== id);
+    // Cascade cleanup
+    if (entity === "subjects") {
+      this.list("students").forEach(s => {
+        if (Array.isArray(s.subjectIds)) s.subjectIds = s.subjectIds.filter(x => x !== id);
+      });
+    }
+    if (entity === "students") {
+      this.list("subjects").forEach(sub => {
+        if (Array.isArray(sub.studentIds)) sub.studentIds = sub.studentIds.filter(x => x !== id);
+      });
+    }
+    if (entity === "teachers") {
+      this.list("subjects").forEach(s => {
+        if (Array.isArray(s.teacherIds)) {
+          s.teacherIds = s.teacherIds.filter(x => x !== id);
+        }
+        if (s.teacherId === id) s.teacherId = "";
+      });
+    }
+    if (entity === "shifts") {
+      this.list("subjects").forEach(s => { if (s.shiftId === id) s.shiftId = ""; });
+    }
+    if (entity === "grades") {
+      this.list("students").forEach(s => { if (s.gradeId === id) s.gradeId = ""; });
+      this.list("subjects").forEach(s => { if (s.gradeId === id) s.gradeId = ""; });
+      // Classes belong to a grade — cascade remove those too
+      const orphanClasses = this.list("classes").filter(c => c.gradeId === id).map(c => c.id);
+      this.data.classes = this.list("classes").filter(c => c.gradeId !== id);
+      orphanClasses.forEach(cid => {
+        this.list("students").forEach(s => { if (s.classId === cid) s.classId = ""; });
+      });
+    }
+    if (entity === "classes") {
+      this.list("students").forEach(s => { if (s.classId === id) s.classId = ""; });
+      this.data.schedule = this.list("schedule").filter(e => e.classId !== id);
+    }
+    if (entity === "subjects") {
+      this.data.schedule = this.list("schedule").filter(e => e.subjectId !== id);
+    }
+    if (entity === "bookTypes") {
+      // Sales keep the historical typeName; typeId can dangle
+    }
+    this.save();
+  },
+
+  // Classes filtered by grade (used in student form)
+  classesForGrade(gradeId) {
+    if (!gradeId) return this.list("classes");
+    return this.list("classes").filter(c => c.gradeId === gradeId);
+  },
+
+  // Schedule helpers
+  scheduleFor({ gradeId, classId, shiftId }) {
+    return this.list("schedule").filter(e =>
+      (!gradeId || e.gradeId === gradeId) &&
+      (!classId || e.classId === classId) &&
+      (!shiftId || e.shiftId === shiftId)
+    );
+  },
+
+  // ---------- Enrollment (M2M student <-> subject) ----------
+  enroll(studentId, subjectId) {
+    const stu = this.get("students", studentId);
+    const sub = this.get("subjects", subjectId);
+    if (!stu || !sub) return;
+    stu.subjectIds = Array.from(new Set([...(stu.subjectIds || []), subjectId]));
+    sub.studentIds = Array.from(new Set([...(sub.studentIds || []), studentId]));
+    this.save();
+  },
+  unenroll(studentId, subjectId) {
+    const stu = this.get("students", studentId);
+    const sub = this.get("subjects", subjectId);
+    if (stu) stu.subjectIds = (stu.subjectIds || []).filter(x => x !== subjectId);
+    if (sub) sub.studentIds = (sub.studentIds || []).filter(x => x !== studentId);
+    this.save();
+  },
+  setStudentSubjects(studentId, subjectIds) {
+    const stu = this.get("students", studentId);
+    if (!stu) return;
+    const oldIds = new Set(stu.subjectIds || []);
+    const newIds = new Set(subjectIds);
+    stu.subjectIds = [...newIds];
+    // Sync the reverse side
+    this.list("subjects").forEach(sub => {
+      const has = (sub.studentIds || []).includes(studentId);
+      if (newIds.has(sub.id) && !has) {
+        sub.studentIds = [...(sub.studentIds || []), studentId];
+      } else if (!newIds.has(sub.id) && has) {
+        sub.studentIds = (sub.studentIds || []).filter(x => x !== studentId);
+      }
+    });
+    this.save();
+  },
+  setSubjectStudents(subjectId, studentIds) {
+    const sub = this.get("subjects", subjectId);
+    if (!sub) return;
+    const newIds = new Set(studentIds);
+    sub.studentIds = [...newIds];
+    this.list("students").forEach(stu => {
+      const has = (stu.subjectIds || []).includes(subjectId);
+      if (newIds.has(stu.id) && !has) {
+        stu.subjectIds = [...(stu.subjectIds || []), subjectId];
+      } else if (!newIds.has(stu.id) && has) {
+        stu.subjectIds = (stu.subjectIds || []).filter(x => x !== subjectId);
+      }
+    });
+    this.save();
+  },
+
+  // ---------- Sales ----------
+  currentSession() {
+    if (!this.data.session.current) {
+      this.data.session.current = this.today();
+      this.data.session.startedAt = this.now();
+      this.save();
+    }
+    return this.data.session;
+  },
+  startNewDay() {
+    this.data.session.current = this.today();
+    this.data.session.startedAt = this.now();
+    this.save();
+  },
+  sessionSales() {
+    const s = this.currentSession();
+    return this.list("sales").filter(x => x.session === s.current);
+  },
+  addSale(sale) {
+    const s = this.currentSession();
+    const qty = Math.max(1, parseInt(sale.qty, 10) || 0);
+    const price = Math.max(0, parseFloat(sale.price) || 0);
+    const rec = {
+      id: this.newId("sal"),
+      ts: this.now(),
+      session: s.current,
+      book: (sale.book || "").trim(),
+      teacherId: sale.teacherId || "",
+      typeId: sale.typeId || "",
+      qty,
+      price,
+      total: +(qty * price).toFixed(2),
+      notes: (sale.notes || "").trim()
+    };
+    if (!rec.book) throw new Error("Book name required");
+    this.data.sales.push(rec);
+    this.save();
+    return rec;
+  },
+  updateSale(id, patch) {
+    const rec = this.get("sales", id);
+    if (!rec) return null;
+    Object.assign(rec, patch);
+    if ("qty" in patch || "price" in patch) {
+      rec.qty = Math.max(1, parseInt(rec.qty, 10) || 1);
+      rec.price = Math.max(0, parseFloat(rec.price) || 0);
+      rec.total = +(rec.qty * rec.price).toFixed(2);
+    }
+    this.save();
+    return rec;
+  },
+  removeSale(id) {
+    this.data.sales = this.list("sales").filter(s => s.id !== id);
+    this.save();
+  },
+
+  // Autocomplete history for the Sales quick-add
+  bookHistory() {
+    const map = new Map();
+    // most-recent-first
+    [...this.list("sales")].reverse().forEach(s => {
+      const key = (s.book || "").toLowerCase();
+      if (!key || map.has(key)) return;
+      map.set(key, {
+        book: s.book,
+        teacherId: s.teacherId,
+        typeId: s.typeId,
+        price: s.price
+      });
+    });
+    return [...map.values()];
+  },
+
+  // ---------- Backup / Restore ----------
+  export() {
+    return JSON.stringify({ ...this.data, _v: 2, _at: this.now() }, null, 2);
+  },
+  import(json) {
+    const parsed = JSON.parse(json);
+    if (!parsed || typeof parsed !== "object") throw new Error("Invalid file");
+    const d = this.defaults();
+    for (const k of Object.keys(d)) if (!(k in parsed)) parsed[k] = d[k];
+    delete parsed._v; delete parsed._at;
+    parsed.settings = { ...d.settings, ...(parsed.settings || {}) };
+    this.data = parsed;
+    this.save();
+  }
+};
+
+
+// ===== js/ui.js =====
+const UI = {
+  escape(s) {
+    return String(s ?? "").replace(/[&<>"']/g, c =>
+      ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c])
+    );
+  },
+
+  toast(msg, type = "") {
+    const el = document.getElementById("toast");
+    if (!el) return;
+    el.className = "toast" + (type ? " " + type : "");
+    el.textContent = msg;
+    el.hidden = false;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.hidden = true; }, 2400);
+  },
+
+  modal({ title, bodyHTML, footerHTML = "", onOpen, wide = false }) {
+    const back = document.getElementById("modalBackdrop");
+    const modal = document.getElementById("modal");
+    modal.classList.toggle("wide", !!wide);
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("modalBody").innerHTML = bodyHTML;
+    document.getElementById("modalFoot").innerHTML = footerHTML;
+    back.hidden = false;
+    if (onOpen) onOpen(modal);
+    setTimeout(() => {
+      const f = modal.querySelector("input, select, textarea");
+      if (f) f.focus();
+    }, 40);
+  },
+  closeModal() {
+    const back = document.getElementById("modalBackdrop");
+    back.hidden = true;
+    document.getElementById("modalBody").innerHTML = "";
+    document.getElementById("modalFoot").innerHTML = "";
+  },
+  confirm(msg, onYes, { okLabel, danger = true } = {}) {
+    UI.modal({
+      title: i18n.t("common.confirm"),
+      bodyHTML: `<p style="margin:0;color:var(--text-soft);line-height:1.5">${UI.escape(msg)}</p>`,
+      footerHTML: `
+        <button class="btn ghost" data-a="cancel">${i18n.t("common.cancel")}</button>
+        <button class="btn ${danger ? "danger" : "primary"}" data-a="ok">${UI.escape(okLabel || i18n.t(danger ? "common.delete" : "common.confirm"))}</button>
+      `,
+      onOpen(m) {
+        m.querySelector('[data-a="cancel"]').onclick = UI.closeModal;
+        m.querySelector('[data-a="ok"]').onclick = () => { UI.closeModal(); onYes && onYes(); };
+      }
+    });
+  },
+
+  fmtMoney(n) {
+    const c = DB.data.settings.currency || "";
+    const num = new Intl.NumberFormat(i18n.lang === "ar" ? "ar-EG" : "en-US").format(+n || 0);
+    return c ? `${num} ${c}` : num;
+  },
+  fmtNumber(n) {
+    return new Intl.NumberFormat(i18n.lang === "ar" ? "ar-EG" : "en-US").format(+n || 0);
+  },
+  fmtDate(d) {
+    if (!d) return "—";
+    const date = new Date(d);
+    if (isNaN(date)) return UI.escape(d);
+    return date.toLocaleDateString(i18n.lang === "ar" ? "ar-EG" : "en-GB");
+  },
+  fmtTime(d) {
+    if (!d) return "";
+    const date = new Date(d);
+    if (isNaN(date)) return "";
+    return date.toLocaleTimeString(i18n.lang === "ar" ? "ar-EG" : "en-GB", { hour: "2-digit", minute: "2-digit" });
+  },
+
+  // Empty state
+  empty(msg, cta = "") {
+    return `<div class="empty">
+      <div class="em">${icon("inbox", "lg")}</div>
+      <div class="empty-text">${UI.escape(msg)}</div>
+      ${cta ? `<div class="empty-cta">${cta}</div>` : ""}
+    </div>`;
+  },
+
+  // Table
+  table({ columns, rows, empty }) {
+    if (!rows || !rows.length) return empty || UI.empty(i18n.t("common.noResults"));
+    const th = columns.map(c => `<th${c.numeric ? ' class="num"' : ""}>${UI.escape(c.label || "")}</th>`).join("");
+    const body = rows.map(r => {
+      const tds = columns.map(c => {
+        let v;
+        if (c.render) v = c.render(r);
+        else {
+          const raw = r[c.key];
+          switch (c.type) {
+            case "money":  v = UI.fmtMoney(raw); break;
+            case "date":   v = UI.fmtDate(raw); break;
+            case "number": v = UI.fmtNumber(raw); break;
+            default:       v = UI.escape(raw ?? "");
+          }
+        }
+        return `<td${c.numeric ? ' class="num"' : (c.className ? ` class="${c.className}"` : "")}>${v}</td>`;
+      }).join("");
+      return `<tr data-id="${UI.escape(r.id || "")}">${tds}</tr>`;
+    }).join("");
+    return `<div class="table-wrap"><table class="data">
+      <thead><tr>${th}</tr></thead>
+      <tbody>${body}</tbody>
+    </table></div>`;
+  },
+
+  // Common action buttons for rows
+  rowActions(id, { edit = true, del = true } = {}) {
+    return `${edit ? `<button class="btn sm" data-edit="${UI.escape(id)}" title="${i18n.t("common.edit")}">${icon("edit","sm")}</button>` : ""}
+    ${del ? `<button class="btn sm danger" data-del="${UI.escape(id)}" title="${i18n.t("common.delete")}">${icon("trash","sm")}</button>` : ""}`;
+  },
+
+  bindRowActions(entity, onEdit, { confirmLabel } = {}) {
+    document.querySelectorAll("[data-edit]").forEach(b => {
+      b.onclick = () => onEdit(b.dataset.edit);
+    });
+    document.querySelectorAll("[data-del]").forEach(b => {
+      b.onclick = () => {
+        const item = DB.get(entity, b.dataset.del);
+        const name = item ? (item.name || item.fullName || item.book || "") : "";
+        UI.confirm(
+          confirmLabel || `${i18n.t("common.confirmDelete")}${name ? ` — "${name}"` : ""}`,
+          () => {
+            DB.remove(entity, b.dataset.del);
+            UI.toast(i18n.t("common.deleted"), "success");
+            App.renderPageOnly();
+          }
+        );
+      };
+    });
+  },
+
+  // Render a chip row OR a dropdown depending on item count.
+  // items: [{ id, name }]
+  // Returns HTML with data-* attributes: data-{attrName}="value"
+  // If > threshold, uses <select>; else buttons.
+  smartFilter({ items, selectedId, attrName, allLabel = "All", threshold = 5 }) {
+    if (!items.length) return "";
+    if (items.length <= threshold) {
+      return `<div class="chip-row">
+        <button class="chip ${!selectedId ? "active" : ""}" data-${attrName}="">${UI.escape(allLabel)}</button>
+        ${items.map(it => `
+          <button class="chip ${selectedId === it.id ? "active" : ""}" data-${attrName}="${UI.escape(it.id)}">${UI.escape(it.name)}</button>
+        `).join("")}
+      </div>`;
+    }
+    // Dropdown
+    return `<select class="filter-select" data-${attrName}-select>
+      <option value="">${UI.escape(allLabel)}</option>
+      ${items.map(it => `
+        <option value="${UI.escape(it.id)}" ${selectedId === it.id ? "selected" : ""}>${UI.escape(it.name)}</option>
+      `).join("")}
+    </select>`;
+  },
+
+  // <option> list — escapes
+  options(entity, selected, { placeholder = null } = {}) {
+    const items = DB.list(entity);
+    let html = placeholder !== null
+      ? `<option value="">${UI.escape(placeholder)}</option>`
+      : "";
+    items.forEach(it => {
+      const name = (i18n.lang === "ar" && it.nameAr) ? it.nameAr : (it.name || it.fullName || "");
+      html += `<option value="${UI.escape(it.id)}" ${selected === it.id ? "selected" : ""}>${UI.escape(name)}</option>`;
+    });
+    return html;
+  },
+
+  lookupName(entity, id) {
+    const item = DB.get(entity, id);
+    if (!item) return "—";
+    if (i18n.lang === "ar" && item.nameAr) return item.nameAr;
+    return item.name || item.fullName || "—";
+  }
+};
+
+
+// ===== js/modules/dashboard.js =====
+const Dashboard = {
+  render() {
+    const students = DB.list("students").length;
+    const teachers = DB.list("teachers").length;
+    const subjects = DB.list("subjects").length;
+    const sales    = DB.list("sales");
+
+    const today = DB.today();
+    const monthPrefix = today.slice(0, 7);
+    const revToday = sales.filter(s => (s.session || s.ts || "").slice(0, 10) === today)
+      .reduce((sum, s) => sum + (+s.total || 0), 0);
+    const revMonth = sales.filter(s => (s.session || (s.ts || "").slice(0, 10) || "").startsWith(monthPrefix))
+      .reduce((sum, s) => sum + (+s.total || 0), 0);
+    const countToday = sales.filter(s => (s.session || s.ts || "").slice(0, 10) === today).length;
+
+    // Recent 5
+    const recent = [...sales].sort((a, b) => (b.ts || "").localeCompare(a.ts || "")).slice(0, 5);
+
+    // Top-selling books
+    const topMap = {};
+    sales.forEach(s => {
+      const k = (s.book || "").trim();
+      if (!k) return;
+      if (!topMap[k]) topMap[k] = { qty: 0, revenue: 0 };
+      topMap[k].qty += (+s.qty || 0);
+      topMap[k].revenue += (+s.total || 0);
+    });
+    const top = Object.entries(topMap)
+      .sort((a, b) => b[1].qty - a[1].qty)
+      .slice(0, 5)
+      .map(([book, v]) => ({ book, ...v }));
+
+    const isEmpty = students === 0 && teachers === 0 && subjects === 0 && sales.length === 0;
+
+    return `
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">${i18n.t("dash.title")}</h1>
+          <div class="page-sub">${UI.fmtDate(today)}</div>
+        </div>
+      </div>
+
+      ${isEmpty ? this.renderOnboarding() : `
+        <div class="stat-grid">
+          ${this.stat({ label: i18n.t("dash.today"),    value: UI.fmtMoney(revToday),
+                        sub: `${UI.fmtNumber(countToday)} ${i18n.t("sales.count")}`,
+                        iconName: "sales", tone: "success" })}
+          ${this.stat({ label: i18n.t("dash.month"),    value: UI.fmtMoney(revMonth),
+                        iconName: "trending", tone: "info" })}
+          ${this.stat({ label: i18n.t("dash.students"), value: UI.fmtNumber(students), iconName: "user" })}
+          ${this.stat({ label: i18n.t("dash.subjects"), value: UI.fmtNumber(subjects), iconName: "subject" })}
+          ${this.stat({ label: i18n.t("dash.teachers"), value: UI.fmtNumber(teachers), iconName: "teacher" })}
+        </div>
+
+        <div class="split-2fr-1fr">
+          <div class="card">
+            <div class="card-head">
+              <h3>${i18n.t("dash.recent")}</h3>
+              <button class="btn sm ghost" data-go="sales">${i18n.t("nav.sales")} →</button>
+            </div>
+            <div class="card-body" style="padding:0">
+              ${recent.length ? UI.table({
+                columns: [
+                  { key: "when", label: i18n.t("common.date"),
+                    render: r => UI.fmtDate(r.ts || r.session) },
+                  { key: "book", label: i18n.t("sales.book"),
+                    render: r => `<strong>${UI.escape(r.book || "—")}</strong>` },
+                  { key: "qty",   label: i18n.t("sales.qty"),   numeric: true, type: "number" },
+                  { key: "total", label: i18n.t("sales.total"), numeric: true,
+                    render: r => `<strong>${UI.fmtMoney(r.total)}</strong>` }
+                ],
+                rows: recent
+              }) : UI.empty(i18n.t("sales.empty"))}
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head">
+              <h3>${i18n.t("dash.top")}</h3>
+              <button class="btn sm ghost" data-go="reports">${i18n.t("nav.reports")} →</button>
+            </div>
+            <div class="card-body">
+              ${top.length ? this.renderTop(top) : UI.empty(i18n.t("sales.empty"))}
+            </div>
+          </div>
+        </div>
+      `}
+    `;
+  },
+
+  stat({ label, value, sub = "", iconName, tone = "" }) {
+    return `
+      <div class="stat ${tone}">
+        <div>
+          <div class="lbl">${UI.escape(label)}</div>
+          <div class="val">${value}</div>
+          ${sub ? `<div class="sub">${UI.escape(sub)}</div>` : ""}
+        </div>
+        <div class="stat-ic">${icon(iconName)}</div>
+      </div>
+    `;
+  },
+
+  renderTop(items) {
+    const max = Math.max(...items.map(i => i.qty), 1);
+    return `<div class="rank-list">
+      ${items.map((it, i) => `
+        <div class="rank-item">
+          <span class="rank">${i + 1}</span>
+          <div>
+            <div class="name" title="${UI.escape(it.book)}">${UI.escape(it.book)}</div>
+            <div class="meta">${UI.fmtMoney(it.revenue)}</div>
+            <div class="rank-bar"><div style="width:${(it.qty / max * 100).toFixed(1)}%"></div></div>
+          </div>
+          <span class="val">${UI.fmtNumber(it.qty)}</span>
+        </div>
+      `).join("")}
+    </div>`;
+  },
+
+  renderOnboarding() {
+    return `
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-body" style="padding:32px; text-align:center">
+          <div style="display:inline-flex;align-items:center;justify-content:center;
+                      width:64px;height:64px;border-radius:50%;background:var(--primary-soft);
+                      color:var(--primary);margin-bottom:12px">
+            ${icon("dashboard", "lg")}
+          </div>
+          <h2 style="margin:0 0 6px;font-size:20px">${UI.escape(DB.data.settings.orgName || "Welcome")}</h2>
+          <p style="color:var(--text-soft);margin:0 0 24px;max-width:480px;margin-inline:auto">
+            ${i18n.t("dash.empty")}
+          </p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+            <button class="btn primary" data-go="teachers">${icon("teacher")} ${i18n.t("teachers.add")}</button>
+            <button class="btn" data-go="subjects">${icon("subject")} ${i18n.t("subjects.add")}</button>
+            <button class="btn" data-go="students">${icon("user")} ${i18n.t("students.add")}</button>
+            <button class="btn" data-go="sales">${icon("sales")} ${i18n.t("nav.sales")}</button>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px;padding-top:16px;border-top:1px solid var(--border)">
+            <button class="btn ghost" id="loadSampleBtn">${icon("play")} ${i18n.t("settings.sampleBtn")}</button>
+            <button class="btn ghost" id="howtoBtn">${icon("info")} ${i18n.t("settings.howtoBtn")}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  bind() {
+    document.querySelectorAll("[data-go]").forEach(b => {
+      b.onclick = () => App.go(b.dataset.go);
+    });
+    document.getElementById("loadSampleBtn")?.addEventListener("click", () => {
+      UI.confirm(i18n.t("settings.sampleDesc"), () => {
+        DB.loadSample();
+        UI.toast(i18n.t("settings.sampleAdded"), "success");
+        App.renderPageOnly();
+      }, { okLabel: i18n.t("settings.sampleBtn"), danger: false });
+    });
+    document.getElementById("howtoBtn")?.addEventListener("click", () => Settings.showHowto());
+  }
+};
+
+
+// ===== js/modules/sales.js =====
+// Daily sales ledger.
+// - Sticky quick-add row at top: book -> teacher -> type -> qty -> price -> +
+// - Enter key on any field adds the record.
+// - Book field autocompletes from history and auto-fills teacher/type/price.
+// - "Start new day" closes the current session; data stays in Reports.
+
+const Sales = {
+  draft: { book: "", teacherId: "", typeId: "", qty: 1, price: 0 },
+
+  render() {
+    const session = DB.currentSession();
+    const rows = DB.sessionSales().sort((a, b) => (b.ts || "").localeCompare(a.ts || ""));
+    const grand = rows.reduce((sum, r) => sum + (+r.total || 0), 0);
+    const units = rows.reduce((sum, r) => sum + (+r.qty || 0), 0);
+
+    const teachers = DB.list("teachers");
+    const types    = DB.list("bookTypes");
+    const history  = DB.bookHistory();
+
+    return `
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">${i18n.t("sales.title")}</h1>
+          <div class="page-sub">${i18n.t("sales.sub")}</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn" id="newDayBtn" title="${i18n.t("sales.newDay")}">
+            ${icon("refresh")} ${i18n.t("sales.newDay")}
+          </button>
+        </div>
+      </div>
+
+      <div class="session-bar">
+        <div class="session-info">
+          <div class="item">
+            <div class="lbl">${i18n.t("sales.session")}</div>
+            <div class="val">${UI.fmtDate(session.current)}</div>
+          </div>
+          <div class="item">
+            <div class="lbl">${i18n.t("sales.count")}</div>
+            <div class="val">${UI.fmtNumber(rows.length)}</div>
+          </div>
+          <div class="item">
+            <div class="lbl">${i18n.t("common.quantity")}</div>
+            <div class="val">${UI.fmtNumber(units)}</div>
+          </div>
+        </div>
+        <div class="session-info">
+          <div class="item" style="text-align:end">
+            <div class="lbl">${i18n.t("sales.grand")}</div>
+            <div class="val big">${UI.fmtMoney(grand)}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="quickbar-wrap">
+        <div class="quickbar-title">${icon("plus","sm")} ${i18n.t("sales.add")}</div>
+        <form class="quickbar" id="quickForm" autocomplete="off">
+          <div class="qb-field qb-book">
+            <label for="qBook">${i18n.t("sales.book")} <span style="color:var(--danger)">*</span></label>
+            <input id="qBook" list="bookHist"
+              placeholder="${i18n.t("sales.hintBook")}"
+              value="${UI.escape(this.draft.book)}" />
+            <datalist id="bookHist">
+              ${history.map(h => `<option value="${UI.escape(h.book)}"></option>`).join("")}
+            </datalist>
+          </div>
+
+          <div class="qb-field">
+            <label for="qTeacher">${i18n.t("sales.teacher")}</label>
+            <select id="qTeacher">
+              <option value="">—</option>
+              ${teachers.map(t =>
+                `<option value="${UI.escape(t.id)}" ${this.draft.teacherId === t.id ? "selected" : ""}>${UI.escape(t.name)}</option>`
+              ).join("")}
+            </select>
+          </div>
+
+          <div class="qb-field">
+            <label for="qType">${i18n.t("sales.type")}</label>
+            <select id="qType">
+              <option value="">—</option>
+              ${types.map(t =>
+                `<option value="${UI.escape(t.id)}" ${this.draft.typeId === t.id ? "selected" : ""}>${UI.escape(t.name)}</option>`
+              ).join("")}
+            </select>
+          </div>
+
+          <div class="qb-field qb-qty">
+            <label for="qQty">${i18n.t("sales.qty")}</label>
+            <input id="qQty" type="number" min="1" value="${+this.draft.qty || 1}"/>
+          </div>
+
+          <div class="qb-field">
+            <label for="qPrice">${i18n.t("sales.price")}</label>
+            <input id="qPrice" type="number" min="0" step="0.01" value="${+this.draft.price || 0}"/>
+          </div>
+
+          <div class="qb-field qb-add">
+            <label style="opacity:0">.</label>
+            <button type="button" class="btn primary add-btn" id="qAddBtn">
+              ${icon("plus")} ${i18n.t("sales.add")}
+            </button>
+          </div>
+        </form>
+        <div class="kbd-hint">↵ Enter after typing a book name to add the record quickly.</div>
+      </div>
+
+      ${rows.length ? UI.table({
+        columns: [
+          { key: "time", label: i18n.t("common.time"),
+            render: r => `<span class="tag muted">${UI.fmtTime(r.ts)}</span>` },
+          { key: "book", label: i18n.t("sales.book"),
+            render: r => `<strong>${UI.escape(r.book)}</strong>` },
+          { key: "teacher", label: i18n.t("sales.teacher"),
+            render: r => UI.escape(UI.lookupName("teachers", r.teacherId)) },
+          { key: "type", label: i18n.t("sales.type"),
+            render: r => {
+              const t = DB.get("bookTypes", r.typeId);
+              return t ? `<span class="tag muted">${UI.escape(t.name)}</span>` : "—";
+            } },
+          { key: "qty",   label: i18n.t("sales.qty"),   numeric: true, type: "number" },
+          { key: "price", label: i18n.t("sales.price"), numeric: true, type: "money" },
+          { key: "total", label: i18n.t("sales.total"), numeric: true,
+            render: r => `<strong>${UI.fmtMoney(r.total)}</strong>` },
+          { key: "actions", label: "", className: "num",
+            render: r => `<button class="btn sm danger" data-del="${UI.escape(r.id)}" title="${i18n.t("common.delete")}">${icon("trash","sm")}</button>` }
+        ],
+        rows
+      }) : `<div class="card"><div class="card-body">
+        ${UI.empty(i18n.t("sales.empty"), `<div style="color:var(--text-mute)">${i18n.t("sales.emptyCta")}</div>`)}
+      </div></div>`}
+    `;
+  },
+
+  bind() {
+    const form = document.getElementById("quickForm");
+    if (form) {
+      // Prevent native submit (belt & suspenders)
+      form.addEventListener("submit", e => { e.preventDefault(); this.submit(); });
+
+      // Direct click handler on the Add button — most reliable
+      const addBtn = document.getElementById("qAddBtn");
+      if (addBtn) addBtn.onclick = () => this.submit();
+
+      // Enter key on any input in the quickbar → submit
+      form.querySelectorAll("input, select").forEach(el => {
+        el.addEventListener("keydown", e => {
+          if (e.key === "Enter") { e.preventDefault(); this.submit(); }
+        });
+      });
+
+      // Book autocomplete — fills teacher, type, price from history
+      const bookIn = document.getElementById("qBook");
+      if (bookIn) bookIn.addEventListener("input", e => {
+        this.draft.book = e.target.value;
+        const match = DB.bookHistory().find(h => h.book.toLowerCase() === e.target.value.trim().toLowerCase());
+        if (match) {
+          this.draft.teacherId = match.teacherId || "";
+          this.draft.typeId    = match.typeId    || "";
+          this.draft.price     = match.price     || 0;
+          const t  = document.getElementById("qTeacher"); if (t)  t.value  = this.draft.teacherId;
+          const ty = document.getElementById("qType");    if (ty) ty.value = this.draft.typeId;
+          const p  = document.getElementById("qPrice");   if (p)  p.value  = this.draft.price;
+        }
+      });
+      document.getElementById("qTeacher")?.addEventListener("change", e => this.draft.teacherId = e.target.value);
+      document.getElementById("qType")?.addEventListener("change",    e => this.draft.typeId    = e.target.value);
+      document.getElementById("qQty")?.addEventListener("input",      e => this.draft.qty      = e.target.value);
+      document.getElementById("qPrice")?.addEventListener("input",    e => this.draft.price    = e.target.value);
+    }
+
+    // Delete row
+    document.querySelectorAll("[data-del]").forEach(b => {
+      b.onclick = () => {
+        UI.confirm(i18n.t("common.confirmDelete"), () => {
+          DB.removeSale(b.dataset.del);
+          UI.toast(i18n.t("common.deleted"), "success");
+          App.renderPageOnly();
+        });
+      };
+    });
+
+    document.getElementById("newDayBtn")?.addEventListener("click", () => {
+      UI.confirm(i18n.t("sales.newDayConfirm"), () => {
+        DB.startNewDay();
+        this.draft = { book: "", teacherId: "", typeId: "", qty: 1, price: 0 };
+        UI.toast(i18n.t("common.saved"), "success");
+        App.renderPageOnly();
+      }, { danger: false, okLabel: i18n.t("sales.newDay") });
+    });
+  },
+
+  submit() {
+    try {
+      const book      = (document.getElementById("qBook")?.value || "").trim();
+      const teacherId = document.getElementById("qTeacher")?.value || "";
+      const typeId    = document.getElementById("qType")?.value    || "";
+      const qty       = document.getElementById("qQty")?.value     || "1";
+      const price     = document.getElementById("qPrice")?.value   || "0";
+
+      if (!book) {
+        UI.toast(i18n.t("sales.book") + " *", "error");
+        document.getElementById("qBook")?.focus();
+        return;
+      }
+      if (!(+qty >= 1)) {
+        UI.toast(i18n.t("sales.qty") + " ≥ 1", "error");
+        document.getElementById("qQty")?.focus();
+        return;
+      }
+
+      DB.addSale({ book, teacherId, typeId, qty, price });
+
+      // Keep teacher/type/price (repeat sales). Clear book+qty.
+      this.draft = { book: "", teacherId, typeId, qty: 1, price };
+      UI.toast(i18n.t("common.saved"), "success");
+      App.renderPageOnly();
+      setTimeout(() => document.getElementById("qBook")?.focus(), 40);
+    } catch (e) {
+      UI.toast(e.message || "Error", "error");
+    }
+  }
+};
+
+
+// ===== js/modules/schedule.js =====
+// Weekly Schedule Builder
+// - Chip filters: Grade → Class → Shift (with smart defaults)
+// - 6-column grid: Sun..Fri (or user's set of days)
+// - Click a slot to add; click an entry to edit
+// - Save & add another supported
+
+const Schedule = {
+  filter: { gradeId: "", classId: "", shiftId: "", day: "" },
+  DAYS: [
+    { id: "Sun", label: "Sunday" },
+    { id: "Mon", label: "Monday" },
+    { id: "Tue", label: "Tuesday" },
+    { id: "Wed", label: "Wednesday" },
+    { id: "Thu", label: "Thursday" },
+    { id: "Fri", label: "Friday" }
+  ],
+
+  // Set smart defaults on first render:
+  // prefer the grade/class that already has schedule entries so the user sees data.
+  ensureDefaults() {
+    const grades = DB.list("grades");
+    const shifts = DB.list("shifts");
+    const entries = DB.list("schedule");
+
+    if (!this.filter.gradeId && grades.length) {
+      // Grade with most entries wins; fall back to first grade
+      const counts = {};
+      entries.forEach(e => { counts[e.gradeId] = (counts[e.gradeId] || 0) + 1; });
+      const bestGrade = Object.entries(counts).sort((a,b) => b[1]-a[1])[0]?.[0];
+      this.filter.gradeId = grades.find(g => g.id === bestGrade)?.id || grades[0].id;
+    }
+    if (this.filter.gradeId) {
+      const classes = DB.classesForGrade(this.filter.gradeId);
+      const stillValid = classes.some(c => c.id === this.filter.classId);
+      if (!stillValid) {
+        const gradeEntries = entries.filter(e => e.gradeId === this.filter.gradeId);
+        const cCounts = {};
+        gradeEntries.forEach(e => { cCounts[e.classId] = (cCounts[e.classId] || 0) + 1; });
+        const bestClass = Object.entries(cCounts).sort((a,b) => b[1]-a[1])[0]?.[0];
+        this.filter.classId = classes.find(c => c.id === bestClass)?.id || classes[0]?.id || "";
+      }
+    }
+    if (!this.filter.shiftId && shifts.length) {
+      this.filter.shiftId = shifts[0].id;
+    }
+  },
+
+  render() {
+    this.ensureDefaults();
+    const grades = DB.list("grades");
+    const classes = DB.classesForGrade(this.filter.gradeId);
+    const shifts = DB.list("shifts");
+
+    if (!grades.length) {
+      return `
+        <div class="page-head">
+          <div>
+            <h1 class="page-title">${i18n.t("sched.title")}</h1>
+            <div class="page-sub">${i18n.t("sched.sub")}</div>
+          </div>
+        </div>
+        <div class="card"><div class="card-body">
+          ${UI.empty(i18n.t("sched.pickClassFirst"),
+            `<button class="btn primary" onclick="App.go('settings')">${icon("settings")} ${i18n.t("nav.settings")}</button>`)}
+        </div></div>
+      `;
+    }
+
+    const entries = DB.scheduleFor({
+      gradeId: this.filter.gradeId,
+      classId: this.filter.classId,
+      shiftId: this.filter.shiftId
+    });
+
+    return `
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">${i18n.t("sched.title")}</h1>
+          <div class="page-sub">${i18n.t("sched.sub")}</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn" onclick="window.print()">${icon("print")} ${i18n.t("common.print")}</button>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <div class="filter-group">
+          <span class="filter-label">${i18n.t("students.grade")}</span>
+          ${Schedule.renderScopedFilter(grades, this.filter.gradeId, "fgrade")}
+        </div>
+
+        ${classes.length ? `
+          <div class="filter-group">
+            <span class="filter-label">${i18n.t("students.class")}</span>
+            ${Schedule.renderScopedFilter(classes, this.filter.classId, "fclass")}
+          </div>
+        ` : ""}
+
+        ${shifts.length ? `
+          <div class="filter-group">
+            <span class="filter-label">${i18n.t("subjects.shift")}</span>
+            ${Schedule.renderScopedFilter(shifts, this.filter.shiftId, "fshift")}
+          </div>
+        ` : ""}
+
+        <div class="filter-summary">
+          ${icon("check")} ${UI.escape(UI.lookupName("grades", this.filter.gradeId))}
+          · ${UI.escape(UI.lookupName("classes", this.filter.classId))}
+          ${this.filter.shiftId ? ` · ${UI.escape(UI.lookupName("shifts", this.filter.shiftId))}` : ""}
+        </div>
+      </div>
+
+      ${!this.filter.classId ? `
+        <div class="card"><div class="card-body">${UI.empty(i18n.t("sched.pickClass"))}</div></div>
+      ` : this.renderGrid(entries)}
+    `;
+  },
+
+  renderGrid(entries) {
+    // Group entries by day
+    const byDay = {};
+    this.DAYS.forEach(d => byDay[d.id] = []);
+    entries.forEach(e => {
+      if (!byDay[e.day]) byDay[e.day] = [];
+      byDay[e.day].push(e);
+    });
+    // Sort by start time
+    Object.values(byDay).forEach(arr => arr.sort((a,b) => (a.startTime||"").localeCompare(b.startTime||"")));
+
+    return `
+      <div class="sched-grid">
+        ${this.DAYS.map(d => `
+          <div class="sched-col">
+            <div class="sched-day-head">${d.label}</div>
+            <div class="sched-day-body">
+              ${byDay[d.id].map(e => this.renderEntry(e)).join("")}
+              <button class="sched-add" data-add-day="${d.id}" title="${i18n.t("sched.add")}">
+                ${icon("plus")}
+              </button>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    `;
+  },
+
+  renderEntry(e) {
+    const subject = DB.get("subjects", e.subjectId);
+    const teacher = DB.get("teachers", e.teacherId);
+    return `
+      <div class="sched-entry lecture" data-edit="${UI.escape(e.id)}">
+        <div class="sched-entry-head">
+          <span class="sched-title">${UI.escape(subject?.name || "—")}</span>
+          <span class="sched-time">${UI.escape(e.startTime || "")}–${UI.escape(e.endTime || "")}</span>
+        </div>
+        <div class="sched-entry-meta">
+          ${teacher ? `<span>${icon("user","sm")} ${UI.escape(teacher.name)}</span>` : ""}
+        </div>
+        ${e.room ? `<div class="sched-entry-room">${icon("location","sm")} ${UI.escape(e.room)}</div>` : ""}
+      </div>
+    `;
+  },
+
+  // Scoped filter: chips if ≤5, dropdown otherwise. No "All" — user must pick one.
+  renderScopedFilter(items, selectedId, attrName) {
+    if (items.length <= 5) {
+      return `<div class="chip-row">
+        ${items.map(it => `
+          <button class="chip ${selectedId === it.id ? "active" : ""}" data-${attrName}="${UI.escape(it.id)}">${UI.escape(it.name)}</button>
+        `).join("")}
+      </div>`;
+    }
+    return `<select class="filter-select" data-${attrName}-select>
+      ${items.map(it => `
+        <option value="${UI.escape(it.id)}" ${selectedId === it.id ? "selected" : ""}>${UI.escape(it.name)}</option>
+      `).join("")}
+    </select>`;
+  },
+
+  bind() {
+    const wire = (attr, key, resetClass = false) => {
+      document.querySelectorAll(`[data-${attr}]`).forEach(b => {
+        if (b.tagName === "BUTTON") b.onclick = () => {
+          this.filter[key] = b.dataset[attr.replace(/-([a-z])/g, (_,c) => c.toUpperCase())];
+          if (resetClass) this.filter.classId = "";
+          App.renderPageOnly();
+        };
+      });
+      const sel = document.querySelector(`[data-${attr}-select]`);
+      if (sel) sel.onchange = e => {
+        this.filter[key] = e.target.value;
+        if (resetClass) this.filter.classId = "";
+        App.renderPageOnly();
+      };
+    };
+    wire("fgrade", "gradeId", true);
+    wire("fclass", "classId");
+    wire("fshift", "shiftId");
+    document.querySelectorAll("[data-add-day]").forEach(b => b.onclick = () => {
+      this.openForm(null, { day: b.dataset.addDay });
+    });
+    document.querySelectorAll("[data-edit]").forEach(el => el.onclick = () => this.openForm(el.dataset.edit));
+  },
+
+  openForm(id, presets = {}) {
+    if (!this.filter.classId) {
+      UI.toast(i18n.t("sched.pickClass"), "error");
+      return;
+    }
+    const e = id
+      ? { ...DB.get("schedule", id) }
+      : {
+          gradeId: this.filter.gradeId,
+          classId: this.filter.classId,
+          shiftId: this.filter.shiftId,
+          day: presets.day || "Sun",
+          type: "lecture",
+          startTime: "08:30",
+          endTime: "10:00"
+        };
+
+    const isEdit = !!id;
+    // Only subjects that target this grade (or have no target grade)
+    const subjects = DB.list("subjects").filter(s =>
+      !s.gradeId || s.gradeId === e.gradeId
+    );
+    const gradeName = UI.lookupName("grades", e.gradeId);
+    const className = UI.lookupName("classes", e.classId);
+
+    const dayLabel = Schedule.DAYS.find(d => d.id === e.day)?.label || e.day || "—";
+    // Encode teacher IDs so we can auto-filter teacher dropdown when subject picked
+    const subjectTeacherMap = {};
+    subjects.forEach(s => {
+      const ids = Array.isArray(s.teacherIds) ? s.teacherIds : (s.teacherId ? [s.teacherId] : []);
+      subjectTeacherMap[s.id] = ids;
+    });
+
+    UI.modal({
+      title: isEdit ? i18n.t("sched.edit") : i18n.t("sched.add"),
+      bodyHTML: `
+        <div class="form-grid">
+          <div class="full" style="padding:10px 12px;background:var(--primary-soft);border-radius:6px;font-size:13px;color:var(--primary);display:flex;gap:6px;align-items:center">
+            ${icon("info","sm")} <span><strong>${UI.escape(gradeName)}</strong> · <strong>${UI.escape(className)}</strong> · <strong>${UI.escape(dayLabel)}</strong></span>
+          </div>
+          <div class="field full">
+            <label>${icon("bookOpen","sm")} ${i18n.t("sched.subject")} <span class="req">*</span></label>
+            <select data-f="subjectId" id="schSub">
+              <option value="">${i18n.t("sched.chooseSubject")}</option>
+              ${subjects.map(s =>
+                `<option value="${UI.escape(s.id)}" ${e.subjectId === s.id ? "selected" : ""}>${UI.escape(s.name)}</option>`
+              ).join("")}
+            </select>
+            ${subjects.length === 0 ? `<div class="hint" style="color:var(--warning)">No subjects for ${UI.escape(gradeName)} yet. Add one in Subjects.</div>` : ""}
+          </div>
+
+          <div class="field full">
+            <label>${icon("user","sm")} ${i18n.t("sched.instructor")} <span id="schInstrHint" style="color:var(--text-mute);font-weight:400;font-size:11.5px"></span></label>
+            <select data-f="teacherId" id="schTeach" disabled>
+              <option value="">${i18n.t("sched.chooseSubject")} first</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>${icon("clock","sm")} ${i18n.t("sched.start")}</label>
+            <input type="time" data-f="startTime" value="${UI.escape(e.startTime || "08:30")}"/>
+          </div>
+          <div class="field">
+            <label>${icon("clock","sm")} ${i18n.t("sched.end")}</label>
+            <input type="time" data-f="endTime" value="${UI.escape(e.endTime || "10:00")}"/>
+          </div>
+
+          <div class="field full">
+            <label>${icon("location","sm")} ${i18n.t("sched.room")}</label>
+            <input data-f="room" value="${UI.escape(e.room || "")}" placeholder="${i18n.t("sched.roomHint")}"/>
+          </div>
+
+          <input type="hidden" data-f="day" value="${UI.escape(e.day || "Sun")}"/>
+          <input type="hidden" data-f="type" value="lecture"/>
+        </div>
+      `,
+      footerHTML: `
+        ${isEdit ? `<button class="btn danger" data-delete>${icon("trash","sm")} ${i18n.t("common.delete")}</button>` : ""}
+        <div style="flex:1"></div>
+        <button class="btn ghost" data-close>${i18n.t("common.cancel")}</button>
+        ${!isEdit ? `<button class="btn" data-save-add>${icon("plus","sm")} ${i18n.t("common.saveAdd")}</button>` : ""}
+        <button class="btn primary" data-save>${icon("save")} ${i18n.t("common.save")}</button>
+      `,
+      onOpen: (m) => {
+        const subSel = m.querySelector("#schSub");
+        const teachSel = m.querySelector("#schTeach");
+        const hint = m.querySelector("#schInstrHint");
+
+        // Populate teacher dropdown from subject's teachers only
+        const refreshTeachers = () => {
+          const sid = subSel.value;
+          const teacherIds = subjectTeacherMap[sid] || [];
+          if (!sid) {
+            teachSel.innerHTML = `<option value="">${i18n.t("sched.chooseSubject")} first</option>`;
+            teachSel.disabled = true;
+            hint.textContent = "";
+            return;
+          }
+          if (!teacherIds.length) {
+            teachSel.innerHTML = `<option value="">— no teachers assigned to this subject —</option>`;
+            teachSel.disabled = true;
+            hint.textContent = "";
+            return;
+          }
+          teachSel.disabled = false;
+          teachSel.innerHTML = teacherIds.map(tid => {
+            const t = DB.get("teachers", tid);
+            if (!t) return "";
+            const selected = (e.teacherId === tid) || (teacherIds.length === 1);
+            return `<option value="${UI.escape(tid)}" ${selected ? "selected" : ""}>${UI.escape(t.name)}</option>`;
+          }).join("");
+          hint.textContent = `— ${teacherIds.length} available`;
+        };
+
+        subSel.addEventListener("change", refreshTeachers);
+        refreshTeachers();
+
+        m.querySelector("[data-close]").onclick = UI.closeModal;
+
+        m.querySelector("[data-delete]")?.addEventListener("click", () => {
+          UI.confirm(i18n.t("common.confirmDelete"), () => {
+            DB.remove("schedule", id);
+            UI.closeModal();
+            UI.toast(i18n.t("common.deleted"), "success");
+            App.renderPageOnly();
+          });
+        });
+
+        const collect = () => {
+          const data = { ...e };
+          m.querySelectorAll("[data-f]").forEach(el => data[el.dataset.f] = el.value);
+          return data;
+        };
+
+        const doSave = (thenReopen) => {
+          const data = collect();
+          if (!data.subjectId && data.type !== "break") {
+            UI.toast(i18n.t("sched.subject") + " *", "error");
+            return null;
+          }
+          if (data.startTime && data.endTime && data.startTime >= data.endTime) {
+            UI.toast(i18n.t("sched.start") + " < " + i18n.t("sched.end"), "error");
+            return null;
+          }
+          DB.upsert("schedule", data);
+          UI.toast(i18n.t("common.saved"), "success");
+          if (thenReopen) {
+            // Rebuild the form for a new entry on the same day
+            const day = data.day;
+            UI.closeModal();
+            App.renderPageOnly();
+            Schedule.openForm(null, { day });
+          } else {
+            UI.closeModal();
+            App.renderPageOnly();
+          }
+          return data;
+        };
+
+        m.querySelector("[data-save]").onclick = () => doSave(false);
+        m.querySelector("[data-save-add]")?.addEventListener("click", () => doSave(true));
+      }
+    });
+  }
+};
+
+
+// ===== js/modules/students.js =====
+const Students = {
+  filter: { q: "", subjectId: "", gradeId: "", classId: "" },
+
+  render() {
+    const grades = DB.list("grades");
+    const classes = DB.classesForGrade(this.filter.gradeId);
+
+    const q = this.filter.q.toLowerCase();
+    const rows = DB.list("students").filter(s => {
+      if (q && !(s.fullName || "").toLowerCase().includes(q)
+           && !(s.phone || "").includes(this.filter.q)) return false;
+      if (this.filter.subjectId && !(s.subjectIds || []).includes(this.filter.subjectId)) return false;
+      if (this.filter.gradeId && s.gradeId !== this.filter.gradeId) return false;
+      if (this.filter.classId && s.classId !== this.filter.classId) return false;
+      return true;
+    });
+
+    const totalStudents = DB.list("students").length;
+    const activeFilters = [
+      this.filter.gradeId && UI.lookupName("grades", this.filter.gradeId),
+      this.filter.classId && UI.lookupName("classes", this.filter.classId),
+      this.filter.subjectId && UI.lookupName("subjects", this.filter.subjectId)
+    ].filter(Boolean);
+
+    return `
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">${i18n.t("students.title")}</h1>
+          <div class="page-sub">
+            ${UI.fmtNumber(rows.length)} of ${UI.fmtNumber(totalStudents)}
+            ${activeFilters.length ? ` · ${activeFilters.map(f => UI.escape(f)).join(" · ")}` : ""}
+          </div>
+        </div>
+        <div class="page-actions">
+          <button class="btn primary" id="addBtn">${icon("plus")} ${i18n.t("students.add")}</button>
+        </div>
+      </div>
+
+      ${totalStudents ? `
+        ${grades.length ? `
+          <div class="filter-bar">
+            <div class="filter-group">
+              <span class="filter-label">${i18n.t("students.grade")}</span>
+              ${UI.smartFilter({ items: grades, selectedId: this.filter.gradeId, attrName: "fgrade", allLabel: i18n.t("common.all") })}
+            </div>
+            ${this.filter.gradeId && classes.length ? `
+              <div class="filter-group">
+                <span class="filter-label">${i18n.t("students.class")}</span>
+                ${UI.smartFilter({ items: classes, selectedId: this.filter.classId, attrName: "fclass", allLabel: i18n.t("common.all") })}
+              </div>
+            ` : ""}
+            ${(() => {
+              const relevantSubs = DB.list("subjects").filter(s =>
+                !this.filter.gradeId || !s.gradeId || s.gradeId === this.filter.gradeId
+              );
+              if (!relevantSubs.length) return "";
+              return `
+                <div class="filter-group">
+                  <span class="filter-label">${i18n.t("nav.subjects")}</span>
+                  ${UI.smartFilter({ items: relevantSubs, selectedId: this.filter.subjectId, attrName: "fsubject", allLabel: i18n.t("common.all") })}
+                </div>
+              `;
+            })()}
+            ${(this.filter.gradeId || this.filter.classId || this.filter.subjectId) ? `
+              <button class="btn sm ghost" id="resetFilters">${icon("x","sm")} ${i18n.t("common.reset")}</button>
+            ` : ""}
+          </div>
+        ` : ""}
+        <div class="toolbar">
+          <input class="search" id="q" placeholder="${i18n.t("common.search")}" value="${UI.escape(this.filter.q)}"/>
+        </div>
+      ` : ""}
+
+      ${rows.length ? UI.table({
+        columns: [
+          { key: "fullName", label: i18n.t("students.fullName"),
+            render: r => `<strong>${UI.escape(r.fullName)}</strong>` },
+          { key: "phone", label: i18n.t("students.phone"),
+            render: r => UI.escape(r.phone || "—") },
+          { key: "grade", label: i18n.t("students.grade"),
+            render: r => {
+              const g = DB.get("grades", r.gradeId);
+              return g ? `<span class="tag muted">${UI.escape(g.name)}</span>` : "—";
+            } },
+          { key: "class", label: i18n.t("students.class"),
+            render: r => {
+              const c = DB.get("classes", r.classId);
+              return c ? `<span class="tag muted">${UI.escape(c.name)}</span>` : "—";
+            } },
+          { key: "subjects", label: i18n.t("students.subjects"),
+            render: r => {
+              const ids = r.subjectIds || [];
+              if (!ids.length) return `<span class="tag muted">${i18n.t("common.none")}</span>`;
+              return ids.map(id => {
+                const s = DB.get("subjects", id);
+                return s ? `<span class="tag">${UI.escape(s.name)}</span>` : "";
+              }).join(" ");
+            } },
+          { key: "actions", label: "", className: "num",
+            render: r => UI.rowActions(r.id) }
+        ],
+        rows
+      }) : `<div class="card"><div class="card-body">
+        ${UI.empty(i18n.t("students.none"),
+          `<div style="margin-top:8px;color:var(--text-mute)">${i18n.t("students.emptyCta")}</div>
+           <button class="btn primary" id="emptyAdd" style="margin-top:14px">${icon("plus")} ${i18n.t("students.add")}</button>`)}
+      </div></div>`}
+    `;
+  },
+
+  bind() {
+    document.getElementById("q")?.addEventListener("input", e => { this.filter.q = e.target.value; App.renderPageOnly(); });
+
+    // Chip OR dropdown handlers (smartFilter uses whichever fits)
+    const wireFilter = (attr, key, resetClass = false) => {
+      document.querySelectorAll(`[data-${attr}]`).forEach(b => {
+        // Chip button
+        if (b.tagName === "BUTTON") {
+          b.onclick = () => {
+            this.filter[key] = b.dataset[toCamel(attr)];
+            if (resetClass) this.filter.classId = "";
+            App.renderPageOnly();
+          };
+        }
+      });
+      const sel = document.querySelector(`[data-${attr}-select]`);
+      if (sel) sel.onchange = e => {
+        this.filter[key] = e.target.value;
+        if (resetClass) this.filter.classId = "";
+        App.renderPageOnly();
+      };
+    };
+    const toCamel = s => s.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+
+    wireFilter("fgrade",   "gradeId", true);
+    wireFilter("fclass",   "classId");
+    wireFilter("fsubject", "subjectId");
+
+    document.getElementById("resetFilters")?.addEventListener("click", () => {
+      this.filter = { q: this.filter.q, subjectId: "", gradeId: "", classId: "" };
+      App.renderPageOnly();
+    });
+    document.getElementById("addBtn")?.addEventListener("click", () => this.openForm());
+    document.getElementById("emptyAdd")?.addEventListener("click", () => this.openForm());
+    UI.bindRowActions("students", id => this.openForm(id));
+  },
+
+  openForm(id) {
+    const s = id ? { ...DB.get("students", id) } : { subjectIds: [], enrolled: DB.today() };
+    s.custom = Array.isArray(s.custom) ? [...s.custom] : [];
+    const selectedSubs = new Set(s.subjectIds || []);
+    const allSubs = DB.list("subjects");
+
+    UI.modal({
+      title: id ? i18n.t("common.edit") + " — " + i18n.t("students.title") : i18n.t("students.add"),
+      wide: true,
+      bodyHTML: `
+        <div class="form-grid">
+          <div class="field full">
+            <label>${i18n.t("students.fullName")} <span class="req">*</span></label>
+            <input data-f="fullName" value="${UI.escape(s.fullName || "")}" required/>
+          </div>
+          <div class="field">
+            <label>${i18n.t("students.phone")}</label>
+            <input data-f="phone" value="${UI.escape(s.phone || "")}"/>
+          </div>
+          <div class="field">
+            <label>${i18n.t("students.gender")}</label>
+            <select data-f="gender">
+              <option value="">—</option>
+              <option value="male"   ${s.gender === "male"   ? "selected" : ""}>${i18n.t("students.male")}</option>
+              <option value="female" ${s.gender === "female" ? "selected" : ""}>${i18n.t("students.female")}</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>${i18n.t("students.dob")}</label>
+            <input type="date" data-f="dob" value="${UI.escape(s.dob || "")}"/>
+          </div>
+          <div class="field">
+            <label>${i18n.t("students.enrolled")}</label>
+            <input type="date" data-f="enrolled" value="${UI.escape(s.enrolled || DB.today())}"/>
+          </div>
+          <div class="field">
+            <label>${i18n.t("students.guardian")}</label>
+            <input data-f="guardian" value="${UI.escape(s.guardian || "")}"/>
+          </div>
+
+          <div class="field">
+            <label>${i18n.t("students.grade")}</label>
+            <select data-f="gradeId" id="stuGradeSel">
+              <option value="">—</option>
+              ${DB.list("grades").map(g =>
+                `<option value="${UI.escape(g.id)}" ${s.gradeId === g.id ? "selected" : ""}>${UI.escape(g.name)}</option>`
+              ).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label>${i18n.t("students.class")}</label>
+            <select data-f="classId" id="stuClassSel">
+              <option value="">${s.gradeId ? "—" : i18n.t("students.pickClassHint")}</option>
+              ${DB.classesForGrade(s.gradeId).map(c =>
+                `<option value="${UI.escape(c.id)}" ${s.classId === c.id ? "selected" : ""}>${UI.escape(c.name)}</option>`
+              ).join("")}
+            </select>
+          </div>
+
+          <div class="field full">
+            <label>${i18n.t("students.address")}</label>
+            <input data-f="address" value="${UI.escape(s.address || "")}"/>
+          </div>
+          <div class="field full">
+            <label>${i18n.t("students.subjects")} <span id="subHint" style="color:var(--text-mute);font-weight:400;font-size:11.5px"></span></label>
+            ${allSubs.length
+              ? `<div class="checklist" id="subCl"></div>`
+              : `<div class="hint">${i18n.t("subjects.none")} — ${i18n.t("subjects.emptyCta")}</div>`}
+          </div>
+          <div class="field full">
+            <label>${i18n.t("students.custom")}</label>
+            <div class="custom-fields" id="customFields"></div>
+            <button type="button" class="btn sm" id="addCustom" style="margin-top:8px;align-self:flex-start">
+              ${icon("plus","sm")} ${i18n.t("students.addField")}
+            </button>
+          </div>
+          <div class="field full">
+            <label>${i18n.t("common.notes")}</label>
+            <textarea data-f="notes">${UI.escape(s.notes || "")}</textarea>
+          </div>
+        </div>
+      `,
+      footerHTML: `
+        <button class="btn ghost" data-close>${i18n.t("common.cancel")}</button>
+        ${id ? "" : `<button class="btn" data-save-add>${icon("plus","sm")} ${i18n.t("common.saveAdd")}</button>`}
+        <button class="btn primary" data-save>${icon("save")} ${i18n.t("common.save")}</button>
+      `,
+      onOpen(m) {
+        // Grade → Class cascade + Grade → Subjects cascade
+        const gradeSel = m.querySelector("#stuGradeSel");
+        const classSel = m.querySelector("#stuClassSel");
+        const subCl    = m.querySelector("#subCl");
+        const subHint  = m.querySelector("#subHint");
+
+        // Track selections across grade switches
+        const chosen = new Set(selectedSubs);
+
+        const renderSubList = () => {
+          if (!subCl) return;
+          const gid = gradeSel ? gradeSel.value : s.gradeId;
+          // "All grades" subjects (no gradeId) always show; grade-specific match current grade
+          const relevant = allSubs.filter(sub => !sub.gradeId || !gid || sub.gradeId === gid);
+          if (!relevant.length) {
+            subCl.innerHTML = `<div style="padding:12px;color:var(--text-mute);font-size:13px">
+              ${gid ? "No subjects match this grade yet." : i18n.t("subjects.none")}
+            </div>`;
+            if (subHint) subHint.textContent = "";
+            return;
+          }
+          subCl.innerHTML = relevant.map(sub => `
+            <label>
+              <input type="checkbox" value="${UI.escape(sub.id)}" ${chosen.has(sub.id) ? "checked" : ""}/>
+              <span>${UI.escape(sub.name)}</span>
+              <span class="meta">${UI.escape(UI.lookupName("teachers", sub.teacherId))}</span>
+            </label>
+          `).join("");
+          subCl.querySelectorAll("input[type='checkbox']").forEach(cb => {
+            cb.onchange = () => {
+              if (cb.checked) chosen.add(cb.value); else chosen.delete(cb.value);
+            };
+          });
+          if (subHint) subHint.textContent = gid
+            ? `— ${relevant.length} for this grade`
+            : `— ${allSubs.length} total`;
+        };
+
+        if (gradeSel && classSel) {
+          gradeSel.addEventListener("change", () => {
+            const gid = gradeSel.value;
+            const opts = DB.classesForGrade(gid);
+            classSel.innerHTML =
+              `<option value="">${gid ? "—" : i18n.t("students.pickClassHint")}</option>` +
+              opts.map(c =>
+                `<option value="${UI.escape(c.id)}">${UI.escape(c.name)}</option>`
+              ).join("");
+            renderSubList();
+          });
+        }
+        renderSubList();
+
+        // Custom fields renderer
+        const cfWrap = m.querySelector("#customFields");
+        const renderCF = () => {
+          if (!s.custom.length) {
+            cfWrap.innerHTML = `<div class="empty-line">${i18n.t("common.none")}</div>`;
+            return;
+          }
+          cfWrap.innerHTML = s.custom.map((f, i) => `
+            <div class="row">
+              <input placeholder="${i18n.t("students.fieldLabel")}" value="${UI.escape(f.label)}" data-cf-lbl="${i}"/>
+              <input placeholder="${i18n.t("students.fieldValue")}" value="${UI.escape(f.value)}" data-cf-val="${i}"/>
+              <button type="button" class="btn sm ghost" data-cf-del="${i}" title="${i18n.t("common.remove")}">${icon("close","sm")}</button>
+            </div>
+          `).join("");
+          cfWrap.querySelectorAll("[data-cf-lbl]").forEach(inp => {
+            inp.oninput = e => { s.custom[+e.target.dataset.cfLbl].label = e.target.value; };
+          });
+          cfWrap.querySelectorAll("[data-cf-val]").forEach(inp => {
+            inp.oninput = e => { s.custom[+e.target.dataset.cfVal].value = e.target.value; };
+          });
+          cfWrap.querySelectorAll("[data-cf-del]").forEach(btn => {
+            btn.onclick = () => { s.custom.splice(+btn.dataset.cfDel, 1); renderCF(); };
+          });
+        };
+        renderCF();
+        m.querySelector("#addCustom").onclick = () => {
+          s.custom.push({ label: "", value: "" });
+          renderCF();
+        };
+
+        m.querySelector("[data-close]").onclick = UI.closeModal;
+
+        const doSave = (thenAnother) => {
+          const data = { ...s };
+          m.querySelectorAll("[data-f]").forEach(el => {
+            data[el.dataset.f] = el.value.trim ? el.value.trim() : el.value;
+          });
+          data.custom = s.custom.filter(f => f.label.trim() || f.value.trim());
+          if (!data.fullName) return UI.toast(i18n.t("students.fullName") + " *", "error");
+          const saved = DB.upsert("students", data);
+          DB.setStudentSubjects(saved.id, [...chosen]);
+          UI.toast(i18n.t("common.saved"), "success");
+          if (thenAnother) {
+            // Remember grade/class so multiple entries in the same class are fast
+            const rememberedGrade = data.gradeId;
+            const rememberedClass = data.classId;
+            UI.closeModal();
+            App.renderPageOnly();
+            Students.openForm();
+            // After reopen, pre-fill grade+class
+            setTimeout(() => {
+              const gs = document.getElementById("stuGradeSel");
+              const cs = document.getElementById("stuClassSel");
+              if (gs && rememberedGrade) {
+                gs.value = rememberedGrade;
+                gs.dispatchEvent(new Event("change", { bubbles: true }));
+                if (cs && rememberedClass) cs.value = rememberedClass;
+              }
+            }, 80);
+          } else {
+            UI.closeModal();
+            App.renderPageOnly();
+          }
+        };
+
+        m.querySelector("[data-save]").onclick = () => doSave(false);
+        m.querySelector("[data-save-add]")?.addEventListener("click", () => doSave(true));
+      }
+    });
+  }
+};
+
+
+// ===== js/modules/subjects.js =====
+const Subjects = {
+  filter: { q: "", gradeId: "" },
+
+  render() {
+    const q = this.filter.q.toLowerCase();
+    const rows = DB.list("subjects").filter(s => {
+      if (q && !(s.name || "").toLowerCase().includes(q)) return false;
+      if (this.filter.gradeId) {
+        // "All grades" (gradeId="") subjects always match; specific ones must match
+        if (s.gradeId && s.gradeId !== this.filter.gradeId) return false;
+      }
+      return true;
+    });
+
+    return `
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">${i18n.t("subjects.title")}</h1>
+          <div class="page-sub">${i18n.t("subjects.sub")} • ${UI.fmtNumber(rows.length)}</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn primary" id="addBtn">${icon("plus")} ${i18n.t("subjects.add")}</button>
+        </div>
+      </div>
+
+      ${DB.list("subjects").length ? `
+        ${DB.list("grades").length ? `
+          <div class="filter-bar">
+            <div class="filter-group">
+              <span class="filter-label">${i18n.t("students.grade")}</span>
+              ${UI.smartFilter({ items: DB.list("grades"), selectedId: this.filter.gradeId, attrName: "fgrade", allLabel: i18n.t("common.all") })}
+            </div>
+          </div>
+        ` : ""}
+        <div class="toolbar">
+          <input class="search" id="q" placeholder="${i18n.t("common.search")}" value="${UI.escape(this.filter.q)}"/>
+        </div>
+      ` : ""}
+
+      ${rows.length ? UI.table({
+        columns: [
+          { key: "name", label: i18n.t("subjects.name"),
+            render: r => `<strong>${UI.escape(r.name)}</strong>` },
+          { key: "grade", label: i18n.t("subjects.grade"),
+            render: r => {
+              const g = DB.get("grades", r.gradeId);
+              return g ? `<span class="tag muted">${UI.escape(g.name)}</span>`
+                       : `<span class="tag muted">${i18n.t("subjects.gradeAll")}</span>`;
+            } },
+          { key: "teachers", label: i18n.t("subjects.teacher"),
+            render: r => {
+              const ids = r.teacherIds || (r.teacherId ? [r.teacherId] : []);
+              if (!ids.length) return "—";
+              return ids.map(id => {
+                const t = DB.get("teachers", id);
+                return t ? `<span class="tag">${UI.escape(t.name)}</span>` : "";
+              }).join(" ");
+            } },
+          { key: "shift", label: i18n.t("subjects.shift"),
+            render: r => {
+              const s = DB.get("shifts", r.shiftId);
+              return s ? `<span class="tag muted">${UI.escape(s.name)}</span>` : "—";
+            } },
+          { key: "price", label: i18n.t("subjects.price"), numeric: true, type: "money" },
+          { key: "students", label: i18n.t("subjects.students"), numeric: true,
+            render: r => `<span class="tag">${UI.fmtNumber((r.studentIds || []).length)}</span>` },
+          { key: "actions", label: "", className: "num",
+            render: r => `
+              <button class="btn sm" data-manage="${UI.escape(r.id)}" title="${i18n.t("subjects.manage")}">${icon("users","sm")}</button>
+              ${UI.rowActions(r.id)}
+            ` }
+        ],
+        rows
+      }) : `<div class="card"><div class="card-body">
+        ${UI.empty(i18n.t("subjects.none"),
+          `<div style="margin-top:8px;color:var(--text-mute)">${i18n.t("subjects.emptyCta")}</div>
+           <button class="btn primary" id="emptyAdd" style="margin-top:14px">${icon("plus")} ${i18n.t("subjects.add")}</button>`)}
+      </div></div>`}
+    `;
+  },
+
+  bind() {
+    document.getElementById("q")?.addEventListener("input", e => { this.filter.q = e.target.value; App.renderPageOnly(); });
+    document.querySelectorAll("[data-fgrade]").forEach(b => {
+      if (b.tagName === "BUTTON") b.onclick = () => {
+        this.filter.gradeId = b.dataset.fgrade;
+        App.renderPageOnly();
+      };
+    });
+    document.querySelector("[data-fgrade-select]")?.addEventListener("change", e => {
+      this.filter.gradeId = e.target.value;
+      App.renderPageOnly();
+    });
+    document.getElementById("addBtn")?.addEventListener("click", () => this.openForm());
+    document.getElementById("emptyAdd")?.addEventListener("click", () => this.openForm());
+    document.querySelectorAll("[data-manage]").forEach(b => {
+      b.onclick = () => this.manageStudents(b.dataset.manage);
+    });
+    UI.bindRowActions("subjects", id => this.openForm(id));
+  },
+
+  openForm(id) {
+    const s = id ? { ...DB.get("subjects", id) } : { studentIds: [], teacherIds: [] };
+    s.teacherIds = Array.isArray(s.teacherIds) ? [...s.teacherIds] : (s.teacherId ? [s.teacherId] : []);
+    const chosenTeachers = new Set(s.teacherIds);
+    const allTeachers = DB.list("teachers");
+
+    UI.modal({
+      title: id ? i18n.t("common.edit") + " — " + i18n.t("subjects.title") : i18n.t("subjects.add"),
+      bodyHTML: `
+        <div class="form-grid">
+          <div class="field full">
+            <label>${i18n.t("subjects.name")} <span class="req">*</span></label>
+            <input data-f="name" value="${UI.escape(s.name || "")}"/>
+          </div>
+          <div class="field">
+            <label>${i18n.t("subjects.grade")}</label>
+            <select data-f="gradeId">
+              <option value="">${i18n.t("subjects.gradeAll")}</option>
+              ${DB.list("grades").map(g =>
+                `<option value="${UI.escape(g.id)}" ${s.gradeId === g.id ? "selected" : ""}>${UI.escape(g.name)}</option>`
+              ).join("")}
+            </select>
+          </div>
+          <div class="field">
+            <label>${i18n.t("subjects.shift")}</label>
+            <select data-f="shiftId">${UI.options("shifts", s.shiftId, { placeholder: "—" })}</select>
+          </div>
+          <div class="field">
+            <label>${i18n.t("subjects.price")}</label>
+            <input type="number" min="0" step="0.01" data-f="price" value="${+s.price || 0}"/>
+          </div>
+          <div class="field"></div>
+          <div class="field full">
+            <label>${i18n.t("subjects.teacher")} <span style="color:var(--text-mute);font-weight:400;font-size:11.5px">— pick one or more</span></label>
+            ${allTeachers.length ? `
+              <div class="checklist" id="teachCl">
+                ${allTeachers.map(t => `
+                  <label>
+                    <input type="checkbox" value="${UI.escape(t.id)}" ${chosenTeachers.has(t.id) ? "checked" : ""}/>
+                    <span>${UI.escape(t.name)}</span>
+                    <span class="meta">${UI.escape(t.phone || "")}</span>
+                  </label>
+                `).join("")}
+              </div>
+            ` : `<div class="hint">${i18n.t("teachers.none")} — ${i18n.t("teachers.emptyCta")}</div>`}
+          </div>
+          <div class="field full">
+            <label>${i18n.t("common.notes")}</label>
+            <textarea data-f="notes">${UI.escape(s.notes || "")}</textarea>
+          </div>
+        </div>
+      `,
+      footerHTML: `
+        <button class="btn ghost" data-close>${i18n.t("common.cancel")}</button>
+        ${id ? "" : `<button class="btn" data-save-add>${icon("plus","sm")} ${i18n.t("common.saveAdd")}</button>`}
+        <button class="btn primary" data-save>${icon("save")} ${i18n.t("common.save")}</button>
+      `,
+      onOpen(m) {
+        m.querySelector("[data-close]").onclick = UI.closeModal;
+
+        const doSave = (thenAnother) => {
+          const data = { ...s };
+          m.querySelectorAll("[data-f]").forEach(el => {
+            data[el.dataset.f] = el.type === "number"
+              ? Math.max(0, +el.value || 0)
+              : el.value.trim();
+          });
+          data.teacherIds = [...m.querySelectorAll("#teachCl input:checked")].map(c => c.value);
+          delete data.teacherId; // remove legacy single field
+          if (!data.name) return UI.toast(i18n.t("subjects.name") + " *", "error");
+          DB.upsert("subjects", data);
+          UI.toast(i18n.t("common.saved"), "success");
+          if (thenAnother) {
+            const rememberedTeachers = data.teacherIds;
+            const rememberedGrade = data.gradeId;
+            const rememberedShift = data.shiftId;
+            UI.closeModal();
+            App.renderPageOnly();
+            Subjects.openForm();
+            setTimeout(() => {
+              const g = document.querySelector('[data-f="gradeId"]');
+              const sh = document.querySelector('[data-f="shiftId"]');
+              if (g) g.value = rememberedGrade;
+              if (sh) sh.value = rememberedShift;
+              // Re-check remembered teachers
+              document.querySelectorAll("#teachCl input").forEach(cb => {
+                cb.checked = rememberedTeachers.includes(cb.value);
+              });
+              document.querySelector('[data-f="name"]')?.focus();
+            }, 80);
+          } else {
+            UI.closeModal();
+            App.renderPageOnly();
+          }
+        };
+
+        m.querySelector("[data-save]").onclick = () => doSave(false);
+        m.querySelector("[data-save-add]")?.addEventListener("click", () => doSave(true));
+      }
+    });
+  },
+
+  manageStudents(subjectId) {
+    const sub = DB.get("subjects", subjectId);
+    if (!sub) return;
+    const enrolled = new Set(sub.studentIds || []);
+    const allStudents = DB.list("students");
+    const targetGrade = sub.gradeId;
+    // If the subject has a target grade, default to filtering by it
+    let showAll = !targetGrade;
+
+    const renderList = (filterOn) => {
+      const list = filterOn
+        ? allStudents.filter(s => s.gradeId === targetGrade)
+        : allStudents;
+      if (!list.length) return UI.empty(i18n.t("students.none"));
+      return `<div class="checklist" id="cl">
+        ${list.map(st => {
+          const g = DB.get("grades", st.gradeId);
+          const c = DB.get("classes", st.classId);
+          const meta = [g?.name, c?.name].filter(Boolean).join(" · ");
+          return `<label>
+            <input type="checkbox" value="${UI.escape(st.id)}" ${enrolled.has(st.id) ? "checked" : ""}/>
+            <span>${UI.escape(st.fullName)}</span>
+            <span class="meta">${UI.escape(meta || st.phone || "")}</span>
+          </label>`;
+        }).join("")}
+      </div>`;
+    };
+
+    UI.modal({
+      title: `${i18n.t("subjects.enrolled")} — ${sub.name}`,
+      wide: true,
+      bodyHTML: `
+        <div style="display:flex;justify-content:space-between;align-items:center;
+                    margin-bottom:10px;color:var(--text-soft);font-size:13px">
+          <div>${UI.escape(i18n.t("students.pickSubjects"))}
+            <span id="clCount" style="color:var(--text-mute);margin-inline-start:6px"></span>
+          </div>
+          ${targetGrade ? `
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+              <input type="checkbox" id="showAllBox" ${showAll ? "checked" : ""}/>
+              <span>${i18n.t("common.all")}</span>
+            </label>
+          ` : ""}
+        </div>
+        <div id="clWrap">${renderList(!showAll)}</div>
+      `,
+      footerHTML: `
+        <button class="btn ghost" data-close>${i18n.t("common.cancel")}</button>
+        <button class="btn primary" data-save>${icon("save")} ${i18n.t("common.save")}</button>
+      `,
+      onOpen(m) {
+        // Preserve current selections across filter toggles
+        const selections = new Set(enrolled);
+        const wire = () => {
+          m.querySelectorAll("#cl input[type='checkbox']").forEach(c => {
+            c.onchange = () => {
+              if (c.checked) selections.add(c.value); else selections.delete(c.value);
+              m.querySelector("#clCount").textContent = `— ${selections.size}/${allStudents.length}`;
+            };
+          });
+          m.querySelector("#clCount").textContent = `— ${selections.size}/${allStudents.length}`;
+        };
+        wire();
+        m.querySelector("#showAllBox")?.addEventListener("change", (e) => {
+          showAll = e.target.checked;
+          // Apply current selections to the rerendered checkboxes
+          m.querySelector("#clWrap").innerHTML = renderList(!showAll);
+          // Re-mark checkboxes based on `selections`
+          m.querySelectorAll("#cl input[type='checkbox']").forEach(c => {
+            c.checked = selections.has(c.value);
+          });
+          wire();
+        });
+
+        m.querySelector("[data-close]").onclick = UI.closeModal;
+        m.querySelector("[data-save]").onclick = () => {
+          DB.setSubjectStudents(subjectId, [...selections]);
+          UI.closeModal();
+          UI.toast(i18n.t("common.saved"), "success");
+          App.renderPageOnly();
+        };
+      }
+    });
+  }
+};
+
+
+// ===== js/modules/teachers.js =====
+const Teachers = {
+  filter: { q: "" },
+
+  render() {
+    const q = this.filter.q.toLowerCase();
+    const rows = DB.list("teachers").filter(t =>
+      !q || (t.name || "").toLowerCase().includes(q) || (t.phone || "").includes(this.filter.q)
+    );
+
+    return `
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">${i18n.t("teachers.title")}</h1>
+          <div class="page-sub">${i18n.t("teachers.sub")} • ${UI.fmtNumber(rows.length)}</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn primary" id="addBtn">${icon("plus")} ${i18n.t("teachers.add")}</button>
+        </div>
+      </div>
+
+      ${DB.list("teachers").length ? `
+        <div class="toolbar">
+          <input class="search" id="q" placeholder="${i18n.t("common.search")}" value="${UI.escape(this.filter.q)}"/>
+        </div>
+      ` : ""}
+
+      ${rows.length ? UI.table({
+        columns: [
+          { key: "name", label: i18n.t("common.name"),
+            render: r => `<strong>${UI.escape(r.name)}</strong>` },
+          { key: "phone", label: i18n.t("teachers.phone"),
+            render: r => UI.escape(r.phone || "—") },
+          { key: "subjects", label: i18n.t("teachers.subjects"),
+            render: r => {
+              const subs = DB.list("subjects").filter(s => s.teacherId === r.id);
+              if (!subs.length) return `<span class="tag muted">${i18n.t("common.none")}</span>`;
+              return subs.map(s => `<span class="tag">${UI.escape(s.name)}</span>`).join(" ");
+            } },
+          { key: "actions", label: "", className: "num",
+            render: r => UI.rowActions(r.id) }
+        ],
+        rows
+      }) : `<div class="card"><div class="card-body">
+        ${UI.empty(i18n.t("teachers.none"),
+          `<div style="margin-top:8px;color:var(--text-mute)">${i18n.t("teachers.emptyCta")}</div>
+           <button class="btn primary" id="emptyAdd" style="margin-top:14px">${icon("plus")} ${i18n.t("teachers.add")}</button>`)}
+      </div></div>`}
+    `;
+  },
+
+  bind() {
+    document.getElementById("q")?.addEventListener("input", e => { this.filter.q = e.target.value; App.renderPageOnly(); });
+    document.getElementById("addBtn")?.addEventListener("click", () => this.openForm());
+    document.getElementById("emptyAdd")?.addEventListener("click", () => this.openForm());
+    UI.bindRowActions("teachers", id => this.openForm(id));
+  },
+
+  openForm(id) {
+    const t = id ? { ...DB.get("teachers", id) } : {};
+    UI.modal({
+      title: id ? i18n.t("common.edit") + " — " + i18n.t("teachers.title") : i18n.t("teachers.add"),
+      bodyHTML: `
+        <div class="form-grid">
+          <div class="field full">
+            <label>${i18n.t("common.name")} <span class="req">*</span></label>
+            <input data-f="name" value="${UI.escape(t.name || "")}"/>
+          </div>
+          <div class="field full">
+            <label>${i18n.t("teachers.phone")}</label>
+            <input data-f="phone" value="${UI.escape(t.phone || "")}"/>
+          </div>
+          <div class="field full">
+            <label>${i18n.t("common.notes")}</label>
+            <textarea data-f="notes">${UI.escape(t.notes || "")}</textarea>
+          </div>
+        </div>
+      `,
+      footerHTML: `
+        <button class="btn ghost" data-close>${i18n.t("common.cancel")}</button>
+        ${id ? "" : `<button class="btn" data-save-add>${icon("plus","sm")} ${i18n.t("common.saveAdd")}</button>`}
+        <button class="btn primary" data-save>${icon("save")} ${i18n.t("common.save")}</button>
+      `,
+      onOpen(m) {
+        m.querySelector("[data-close]").onclick = UI.closeModal;
+
+        const doSave = (thenAnother) => {
+          const data = { ...t };
+          m.querySelectorAll("[data-f]").forEach(el => { data[el.dataset.f] = el.value.trim(); });
+          if (!data.name) return UI.toast(i18n.t("common.name") + " *", "error");
+          DB.upsert("teachers", data);
+          UI.toast(i18n.t("common.saved"), "success");
+          if (thenAnother) {
+            UI.closeModal();
+            App.renderPageOnly();
+            Teachers.openForm();
+          } else {
+            UI.closeModal();
+            App.renderPageOnly();
+          }
+        };
+        m.querySelector("[data-save]").onclick = () => doSave(false);
+        m.querySelector("[data-save-add]")?.addEventListener("click", () => doSave(true));
+      }
+    });
+  }
+};
+
+
+// ===== js/modules/reports.js =====
+// Reports — insight-first, one chart, filterable transaction log.
+const Reports = {
+  range: "week",       // today | week | month | all | custom
+  customFrom: "",
+  customTo: "",
+  logFilter: { q: "", teacherId: "", typeId: "" },
+
+  ranges() {
+    return [
+      { id: "today", label: i18n.t("reports.rangeToday") },
+      { id: "week",  label: i18n.t("reports.rangeWeek") },
+      { id: "month", label: i18n.t("reports.rangeMonth") },
+      { id: "all",   label: i18n.t("reports.rangeAll") },
+      { id: "custom",label: i18n.t("reports.rangeCustom") }
+    ];
+  },
+
+  // Returns { from, to } for the currently selected range
+  bounds() {
+    const now = new Date();
+    const iso = d => d.toISOString().slice(0, 10);
+    if (this.range === "today") return { from: iso(now), to: iso(now) };
+    if (this.range === "week")  { const d = new Date(now); d.setDate(d.getDate() - 6);  return { from: iso(d), to: iso(now) }; }
+    if (this.range === "month") { const d = new Date(now); d.setDate(d.getDate() - 29); return { from: iso(d), to: iso(now) }; }
+    if (this.range === "custom") return {
+      from: this.customFrom || iso(now),
+      to:   this.customTo   || iso(now)
+    };
+    return { from: null, to: null };
+  },
+
+  // Returns the equivalent prior period for delta comparisons
+  prevBounds() {
+    const { from, to } = this.bounds();
+    if (!from || !to) return { from: null, to: null };
+    const start = new Date(from), end = new Date(to);
+    const days = Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    const prevEnd = new Date(start); prevEnd.setDate(prevEnd.getDate() - 1);
+    const prevStart = new Date(prevEnd); prevStart.setDate(prevStart.getDate() - (days - 1));
+    const iso = d => d.toISOString().slice(0, 10);
+    return { from: iso(prevStart), to: iso(prevEnd) };
+  },
+
+  salesIn(bounds) {
+    const { from, to } = bounds;
+    return DB.list("sales").filter(s => {
+      const d = (s.session || (s.ts || "").slice(0, 10));
+      if (from && d < from) return false;
+      if (to   && d > to)   return false;
+      return true;
+    });
+  },
+
+  filtered() { return this.salesIn(this.bounds()); },
+
+  // ---------- RENDER ----------
+  render() {
+    const rows = this.filtered();
+    const prevRows = this.salesIn(this.prevBounds());
+    const { from, to } = this.bounds();
+
+    const revenue = rows.reduce((s, r) => s + (+r.total || 0), 0);
+    const prevRev = prevRows.reduce((s, r) => s + (+r.total || 0), 0);
+    const units   = rows.reduce((s, r) => s + (+r.qty || 0), 0);
+    const prevUn  = prevRows.reduce((s, r) => s + (+r.qty || 0), 0);
+    const txns    = rows.length;
+    const prevTxns= prevRows.length;
+    const avg     = txns ? revenue / txns : 0;
+    const prevAvg = prevTxns ? prevRev / prevTxns : 0;
+
+    // Best-day / best-book / best-teacher for the current range
+    const dayMap = {}, bookMap = {}, teachMap = {};
+    rows.forEach(r => {
+      const d = r.session || (r.ts || "").slice(0, 10);
+      dayMap[d] = (dayMap[d] || 0) + (+r.total || 0);
+      const bk = (r.book || "").trim();
+      if (bk) {
+        if (!bookMap[bk]) bookMap[bk] = { qty: 0, revenue: 0 };
+        bookMap[bk].qty += (+r.qty || 0);
+        bookMap[bk].revenue += (+r.total || 0);
+      }
+      const tid = r.teacherId;
+      if (tid) {
+        if (!teachMap[tid]) teachMap[tid] = { qty: 0, revenue: 0 };
+        teachMap[tid].qty += (+r.qty || 0);
+        teachMap[tid].revenue += (+r.total || 0);
+      }
+    });
+    const bestDay = Object.entries(dayMap).sort((a, b) => b[1] - a[1])[0];
+    const bestBook = Object.entries(bookMap).sort((a, b) => b[1].revenue - a[1].revenue)[0];
+    const bestTeacher = Object.entries(teachMap).sort((a, b) => b[1].revenue - a[1].revenue)[0];
+
+    return `
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">${i18n.t("reports.title")}</h1>
+          <div class="page-sub">${from ? `${UI.fmtDate(from)} — ${UI.fmtDate(to)}` : i18n.t("reports.rangeAll")}</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn" id="printBtn">${icon("print")} ${i18n.t("common.print")}</button>
+          <button class="btn" id="csvBtn">${icon("download")} CSV</button>
+        </div>
+      </div>
+
+      <div class="toolbar" style="margin-bottom:14px">
+        ${this.ranges().map(r =>
+          `<button class="btn ${this.range === r.id ? "primary" : ""}" data-range="${r.id}">${UI.escape(r.label)}</button>`
+        ).join("")}
+        ${this.range === "custom" ? `
+          <input type="date" id="cFrom" value="${UI.escape(this.customFrom)}" title="${i18n.t("common.from")}"/>
+          <input type="date" id="cTo"   value="${UI.escape(this.customTo)}"   title="${i18n.t("common.to")}"/>
+        ` : ""}
+      </div>
+
+      ${!rows.length ? `
+        <div class="card"><div class="card-body">${UI.empty(i18n.t("reports.empty"))}</div></div>
+      ` : `
+        <div class="stat-grid">
+          ${this.metricCard(i18n.t("reports.revenue"),      UI.fmtMoney(revenue), revenue, prevRev, "sales", "success")}
+          ${this.metricCard(i18n.t("reports.transactions"), UI.fmtNumber(txns),   txns,    prevTxns, "reports")}
+          ${this.metricCard(i18n.t("reports.units"),        UI.fmtNumber(units),  units,   prevUn,   "subject")}
+          ${this.metricCard(i18n.t("reports.avg"),          UI.fmtMoney(avg),     avg,     prevAvg,  "trending", "info")}
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-head"><h3>${icon("info","sm")} ${i18n.t("reports.insights")}</h3></div>
+          <div class="card-body">
+            <div class="insight-grid">
+              ${this.insightItem("bestDay", i18n.t("reports.bestDay"),
+                bestDay ? UI.fmtDate(bestDay[0]) : "—",
+                bestDay ? UI.fmtMoney(bestDay[1]) : "")}
+              ${this.insightItem("bestBook", i18n.t("reports.bestBook"),
+                bestBook ? bestBook[0] : "—",
+                bestBook ? `${UI.fmtNumber(bestBook[1].qty)} units · ${UI.fmtMoney(bestBook[1].revenue)}` : "")}
+              ${this.insightItem("bestTeacher", i18n.t("reports.bestTeacher"),
+                bestTeacher ? UI.lookupName("teachers", bestTeacher[0]) : "—",
+                bestTeacher ? UI.fmtMoney(bestTeacher[1].revenue) : "")}
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-head"><h3>${icon("trending","sm")} ${i18n.t("reports.trend")}</h3></div>
+          <div class="card-body">${this.renderTrend(rows)}</div>
+        </div>
+      `}
+
+      ${this.renderLog()}
+    `;
+  },
+
+  metricCard(label, value, cur, prev, iconName, tone = "") {
+    const delta = prev > 0 ? ((cur - prev) / prev) * 100 : (cur > 0 ? 100 : 0);
+    const up = delta >= 0;
+    const deltaStr = prev === 0 && cur === 0
+      ? "—"
+      : (isFinite(delta) ? `${up ? "+" : ""}${delta.toFixed(0)}%` : "—");
+    const deltaCls = prev === 0 && cur === 0 ? "flat" : (up ? "up" : "down");
+    return `
+      <div class="stat ${tone}">
+        <div>
+          <div class="lbl">${UI.escape(label)}</div>
+          <div class="val">${value}</div>
+          <div class="sub delta ${deltaCls}">
+            ${deltaCls === "flat" ? "" : icon(up ? "arrowUp" : "arrowDown", "sm")}
+            ${UI.escape(deltaStr)} ${i18n.t("reports.vsPrev")}
+          </div>
+        </div>
+        <div class="stat-ic">${icon(iconName)}</div>
+      </div>
+    `;
+  },
+
+  insightItem(cls, title, big, sub) {
+    return `
+      <div class="insight-item ${cls}">
+        <div class="insight-title">${UI.escape(title)}</div>
+        <div class="insight-big">${UI.escape(big)}</div>
+        ${sub ? `<div class="insight-sub">${UI.escape(sub)}</div>` : ""}
+      </div>
+    `;
+  },
+
+  renderTrend(rows) {
+    const map = {};
+    rows.forEach(r => {
+      const d = r.session || (r.ts || "").slice(0, 10);
+      if (!d) return;
+      map[d] = (map[d] || 0) + (+r.total || 0);
+    });
+    const { from, to } = this.bounds();
+    const days = [];
+    if (from && to) {
+      const cur = new Date(from), end = new Date(to);
+      while (cur <= end && days.length < 90) {
+        const iso = cur.toISOString().slice(0, 10);
+        days.push({ date: iso, total: map[iso] || 0 });
+        cur.setDate(cur.getDate() + 1);
+      }
+    } else {
+      Object.entries(map).sort((a, b) => a[0].localeCompare(b[0]))
+        .forEach(([date, total]) => days.push({ date, total }));
+    }
+    if (!days.length) return UI.empty(i18n.t("reports.empty"));
+    const max = Math.max(...days.map(d => d.total), 1);
+    const showLabels = days.length <= 14;
+    return `
+      <div class="chart-bars">
+        ${days.map(d => `
+          <div class="bar" style="height:${(d.total / max * 100).toFixed(1)}%" title="${UI.fmtDate(d.date)} — ${UI.fmtMoney(d.total)}">
+            <span class="lbl">${UI.fmtMoney(d.total)}</span>
+          </div>
+        `).join("")}
+      </div>
+      <div class="chart-axis">
+        ${days.map(d => showLabels
+          ? `<span title="${UI.fmtDate(d.date)}">${d.date.slice(5)}</span>`
+          : `<span></span>`).join("")}
+      </div>
+    `;
+  },
+
+  // ---------- LOG ----------
+  renderLog() {
+    // The log uses its own filter (independent of the range chips) so users can
+    // track any past sale quickly.
+    const all = [...DB.list("sales")];
+    const q = this.logFilter.q.toLowerCase();
+    const filtered = all.filter(r => {
+      if (q && !(r.book || "").toLowerCase().includes(q)) return false;
+      if (this.logFilter.teacherId && r.teacherId !== this.logFilter.teacherId) return false;
+      if (this.logFilter.typeId && r.typeId !== this.logFilter.typeId) return false;
+      return true;
+    }).sort((a, b) => (b.ts || "").localeCompare(a.ts || ""));
+
+    // Cap for performance; can expand later with paging
+    const cap = 200;
+    const shown = filtered.slice(0, cap);
+    const grandTotal = filtered.reduce((s, r) => s + (+r.total || 0), 0);
+
+    return `
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <h3>${icon("reports","sm")} ${i18n.t("reports.log")}</h3>
+            <div style="color:var(--text-mute);font-size:12px;margin-top:2px">${i18n.t("reports.logSub")}</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;color:var(--text-soft);font-size:12.5px">
+            <span>${i18n.t("reports.showing")} <strong>${UI.fmtNumber(shown.length)}</strong> ${i18n.t("reports.of")} ${UI.fmtNumber(filtered.length)} ${i18n.t("reports.records")}</span>
+            <span class="tag success">${UI.fmtMoney(grandTotal)}</span>
+          </div>
+        </div>
+        <div class="card-body" style="padding:14px 18px 0">
+          <div class="log-filters">
+            <input class="search" id="logQ" placeholder="${i18n.t("reports.filterBook")}" value="${UI.escape(this.logFilter.q)}"/>
+            <select id="logT">
+              <option value="">${i18n.t("common.all")} — ${i18n.t("reports.filterTeacher")}</option>
+              ${DB.list("teachers").map(t =>
+                `<option value="${UI.escape(t.id)}" ${this.logFilter.teacherId === t.id ? "selected" : ""}>${UI.escape(t.name)}</option>`
+              ).join("")}
+            </select>
+            <select id="logType">
+              <option value="">${i18n.t("common.all")} — ${i18n.t("reports.filterType")}</option>
+              ${DB.list("bookTypes").map(bt =>
+                `<option value="${UI.escape(bt.id)}" ${this.logFilter.typeId === bt.id ? "selected" : ""}>${UI.escape(bt.name)}</option>`
+              ).join("")}
+            </select>
+            ${(this.logFilter.q || this.logFilter.teacherId || this.logFilter.typeId) ? `
+              <button class="btn sm ghost" id="logReset">${icon("x","sm")} ${i18n.t("common.reset")}</button>
+            ` : ""}
+          </div>
+        </div>
+        <div class="card-body" style="padding:0">
+          ${shown.length ? UI.table({
+            columns: [
+              { key: "date", label: i18n.t("common.date"),
+                render: r => `<span style="color:var(--text-mute);font-variant-numeric:tabular-nums">${UI.fmtDate(r.session || r.ts)}</span>` },
+              { key: "time", label: i18n.t("common.time"),
+                render: r => `<span class="tag muted">${UI.fmtTime(r.ts)}</span>` },
+              { key: "book", label: i18n.t("sales.book"),
+                render: r => `<strong>${UI.escape(r.book || "—")}</strong>` },
+              { key: "teacher", label: i18n.t("sales.teacher"),
+                render: r => UI.escape(UI.lookupName("teachers", r.teacherId)) },
+              { key: "type",  label: i18n.t("sales.type"),
+                render: r => {
+                  const t = DB.get("bookTypes", r.typeId);
+                  return t ? `<span class="tag muted">${UI.escape(t.name)}</span>` : "—";
+                } },
+              { key: "qty",   label: i18n.t("sales.qty"),   numeric: true, type: "number" },
+              { key: "price", label: i18n.t("sales.price"), numeric: true, type: "money" },
+              { key: "total", label: i18n.t("sales.total"), numeric: true,
+                render: r => `<strong>${UI.fmtMoney(r.total)}</strong>` }
+            ],
+            rows: shown
+          }) : UI.empty(i18n.t("reports.empty"))}
+          ${filtered.length > cap ? `
+            <div style="padding:12px 18px;text-align:center;color:var(--text-mute);font-size:12.5px;border-top:1px solid var(--border)">
+              Showing first ${cap} — refine filters to narrow further.
+            </div>
+          ` : ""}
+        </div>
+      </div>
+    `;
+  },
+
+  bind() {
+    document.querySelectorAll("[data-range]").forEach(b => {
+      b.onclick = () => { this.range = b.dataset.range; App.renderPageOnly(); };
+    });
+    document.getElementById("cFrom")?.addEventListener("change", e => { this.customFrom = e.target.value; App.renderPageOnly(); });
+    document.getElementById("cTo")?.addEventListener("change",   e => { this.customTo   = e.target.value; App.renderPageOnly(); });
+    document.getElementById("printBtn")?.addEventListener("click", () => window.print());
+    document.getElementById("csvBtn")?.addEventListener("click", () => this.exportCSV());
+
+    // Log filters
+    document.getElementById("logQ")?.addEventListener("input", e => { this.logFilter.q = e.target.value; App.renderPageOnly(); });
+    document.getElementById("logT")?.addEventListener("change", e => { this.logFilter.teacherId = e.target.value; App.renderPageOnly(); });
+    document.getElementById("logType")?.addEventListener("change", e => { this.logFilter.typeId = e.target.value; App.renderPageOnly(); });
+    document.getElementById("logReset")?.addEventListener("click", () => {
+      this.logFilter = { q: "", teacherId: "", typeId: "" };
+      App.renderPageOnly();
+    });
+  },
+
+  exportCSV() {
+    // Export the currently-filtered LOG (independent of range)
+    const q = this.logFilter.q.toLowerCase();
+    const rows = DB.list("sales").filter(r => {
+      if (q && !(r.book || "").toLowerCase().includes(q)) return false;
+      if (this.logFilter.teacherId && r.teacherId !== this.logFilter.teacherId) return false;
+      if (this.logFilter.typeId && r.typeId !== this.logFilter.typeId) return false;
+      return true;
+    }).sort((a, b) => (b.ts || "").localeCompare(a.ts || ""));
+
+    if (!rows.length) return UI.toast(i18n.t("reports.empty"), "error");
+    const header = ["Date", "Time", "Book", "Teacher", "Type", "Qty", "Price", "Total"];
+    const lines = [header.join(",")];
+    rows.forEach(r => {
+      const line = [
+        r.session || (r.ts || "").slice(0, 10),
+        UI.fmtTime(r.ts),
+        r.book,
+        UI.lookupName("teachers", r.teacherId),
+        DB.get("bookTypes", r.typeId)?.name || "",
+        r.qty, r.price, r.total
+      ].map(v => `"${String(v ?? "").replace(/"/g, '""')}"`).join(",");
+      lines.push(line);
+    });
+    const csv = "\ufeff" + lines.join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `sales_log_${DB.today()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    UI.toast(i18n.t("common.export"), "success");
+  }
+};
+
+
+// ===== js/modules/settings.js =====
+const Settings = {
+  render() {
+    const s = DB.data.settings;
+    return `
+      <div class="page-head">
+        <div>
+          <h1 class="page-title">${i18n.t("settings.title")}</h1>
+        </div>
+      </div>
+
+      <!-- Org + Appearance -->
+      <div class="split settings-section">
+        <div class="card">
+          <div class="card-head"><h3>${i18n.t("settings.org")}</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field full">
+                <label>${i18n.t("settings.orgName")}</label>
+                <input data-s="orgName" value="${UI.escape(s.orgName || "")}"/>
+              </div>
+              <div class="field">
+                <label>${i18n.t("settings.currency")}</label>
+                <input data-s="currency" value="${UI.escape(s.currency || "")}" placeholder="IQD, USD, …"/>
+              </div>
+              <div class="field">
+                <label>${i18n.t("settings.logo")}</label>
+                <input type="file" id="logoFile" accept="image/*"/>
+                ${s.logo ? `<img src="${s.logo}" alt="logo" style="width:60px;height:60px;object-fit:cover;border-radius:8px;margin-top:6px"/>` : ""}
+              </div>
+            </div>
+            <div style="text-align:end;margin-top:14px">
+              <button class="btn primary" id="saveOrg">${icon("save")} ${i18n.t("common.save")}</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h3>${i18n.t("settings.appearance")}</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="field">
+                <label>${i18n.t("settings.theme")}</label>
+                <select id="s_theme">
+                  <option value="light" ${s.theme === "light" ? "selected" : ""}>${i18n.t("settings.themeLight")}</option>
+                  <option value="dark"  ${s.theme === "dark"  ? "selected" : ""}>${i18n.t("settings.themeDark")}</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>${i18n.t("settings.lang")}</label>
+                <select id="s_lang">
+                  <option value="en" ${i18n.lang === "en" ? "selected" : ""}>English</option>
+                  <option value="ar" ${i18n.lang === "ar" ? "selected" : ""}>العربية</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grades & Classes -->
+      <div class="split settings-section">
+        <div class="card">
+          <div class="card-head">
+            <h3>${i18n.t("settings.grades")}</h3>
+            <button class="btn sm" id="addGrade">${icon("plus","sm")} ${i18n.t("common.add")}</button>
+          </div>
+          <div class="card-body">
+            <div class="lookup-list" id="gradesList">
+              ${DB.list("grades").length ? DB.list("grades").map(g => `
+                <div class="lookup-row simple" data-id="${UI.escape(g.id)}">
+                  <input data-gf="name" value="${UI.escape(g.name || "")}" placeholder="${i18n.t("settings.shift.name")}"/>
+                  <button class="btn sm danger" data-del-grade="${UI.escape(g.id)}" title="${i18n.t("common.delete")}">${icon("trash","sm")}</button>
+                </div>
+              `).join("") : `<div class="hint">${i18n.t("common.none")}</div>`}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>${i18n.t("settings.classes")}</h3>
+            <button class="btn sm" id="addClass"
+              ${DB.list("grades").length ? "" : "disabled title='Add a grade first'"}>
+              ${icon("plus","sm")} ${i18n.t("common.add")}
+            </button>
+          </div>
+          <div class="card-body">
+            <div class="lookup-list" id="classesList">
+              ${DB.list("classes").length ? DB.list("classes").map(c => `
+                <div class="lookup-row class-row" data-id="${UI.escape(c.id)}">
+                  <input data-cf="name" value="${UI.escape(c.name || "")}" placeholder="${i18n.t("settings.shift.name")}"/>
+                  <select data-cf="gradeId">
+                    <option value="">— ${i18n.t("settings.class.grade")} —</option>
+                    ${DB.list("grades").map(g =>
+                      `<option value="${UI.escape(g.id)}" ${c.gradeId === g.id ? "selected" : ""}>${UI.escape(g.name)}</option>`
+                    ).join("")}
+                  </select>
+                  <button class="btn sm danger" data-del-class="${UI.escape(c.id)}" title="${i18n.t("common.delete")}">${icon("trash","sm")}</button>
+                </div>
+              `).join("") : `<div class="hint">${DB.list("grades").length ? i18n.t("common.none") : "Add a grade first"}</div>`}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shifts & Book Types -->
+      <div class="split settings-section">
+        <div class="card">
+          <div class="card-head">
+            <h3>${i18n.t("settings.shifts")}</h3>
+            <button class="btn sm" id="addShift">${icon("plus","sm")} ${i18n.t("common.add")}</button>
+          </div>
+          <div class="card-body">
+            <div class="lookup-list" id="shiftsList">
+              ${DB.list("shifts").length ? DB.list("shifts").map(sh => `
+                <div class="lookup-row" data-id="${UI.escape(sh.id)}">
+                  <input data-sf="name" value="${UI.escape(sh.name || "")}" placeholder="${i18n.t("settings.shift.name")}"/>
+                  <input data-sf="start" type="time" value="${UI.escape(sh.start || "")}"/>
+                  <input data-sf="end" type="time" value="${UI.escape(sh.end || "")}"/>
+                  <button class="btn sm danger" data-del-shift="${UI.escape(sh.id)}" title="${i18n.t("common.delete")}">${icon("trash","sm")}</button>
+                </div>
+              `).join("") : `<div class="hint">${i18n.t("common.none")}</div>`}
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h3>${i18n.t("settings.bookTypes")}</h3>
+            <button class="btn sm" id="addType">${icon("plus","sm")} ${i18n.t("common.add")}</button>
+          </div>
+          <div class="card-body">
+            <div class="lookup-list" id="typesList">
+              ${DB.list("bookTypes").length ? DB.list("bookTypes").map(bt => `
+                <div class="lookup-row simple" data-id="${UI.escape(bt.id)}">
+                  <input data-tf="name" value="${UI.escape(bt.name || "")}" placeholder="${i18n.t("settings.shift.name")}"/>
+                  <button class="btn sm danger" data-del-type="${UI.escape(bt.id)}" title="${i18n.t("common.delete")}">${icon("trash","sm")}</button>
+                </div>
+              `).join("") : `<div class="hint">${i18n.t("common.none")}</div>`}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Getting started -->
+      <div class="split settings-section">
+        <div class="card">
+          <div class="card-head"><h3>${icon("info")} ${i18n.t("settings.howto")}</h3></div>
+          <div class="card-body">
+            <p style="color:var(--text-soft);margin-top:0">Learn how the app is used day-to-day.</p>
+            <button class="btn primary" id="btnHowto">${icon("info")} ${i18n.t("settings.howtoBtn")}</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h3>${icon("play")} ${i18n.t("settings.sample")}</h3></div>
+          <div class="card-body">
+            <p style="color:var(--text-soft);margin-top:0">${i18n.t("settings.sampleDesc")}</p>
+            <button class="btn" id="btnSample">${icon("play")} ${i18n.t("settings.sampleBtn")}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data -->
+      <div class="split settings-section">
+        <div class="card">
+          <div class="card-head"><h3>${i18n.t("settings.data")}</h3></div>
+          <div class="card-body">
+            <p style="color:var(--text-soft);margin-top:0">Save or restore all data as a JSON file.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <button class="btn primary" id="btnBackup">${icon("download")} ${i18n.t("settings.backup")}</button>
+              <input type="file" id="restoreFile" accept="application/json" style="display:none"/>
+              <button class="btn" id="btnRestore">${icon("upload")} ${i18n.t("settings.restore")}</button>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="border-color:var(--danger)">
+          <div class="card-head">
+            <h3 style="color:var(--danger);display:inline-flex;gap:6px;align-items:center">${icon("alert")} ${i18n.t("settings.danger")}</h3>
+          </div>
+          <div class="card-body">
+            <p style="color:var(--text-soft);margin-top:0">${i18n.t("settings.resetConfirm")}</p>
+            <button class="btn danger" id="btnReset">${icon("trash")} ${i18n.t("settings.reset")}</button>
+          </div>
+        </div>
+      </div>
+    `;
+  },
+
+  bind() {
+    // Save org
+    document.getElementById("saveOrg")?.addEventListener("click", () => {
+      DB.data.settings.orgName  = document.querySelector('[data-s="orgName"]').value.trim();
+      DB.data.settings.currency = document.querySelector('[data-s="currency"]').value.trim();
+      const f = document.getElementById("logoFile").files[0];
+      const done = () => { DB.save(); App.applySettings(); UI.toast(i18n.t("common.saved"), "success"); };
+      if (f) {
+        if (f.size > 2 * 1024 * 1024) return UI.toast("Image too large (max 2 MB)", "error");
+        const fr = new FileReader();
+        fr.onload = () => { DB.data.settings.logo = fr.result; done(); };
+        fr.onerror = () => UI.toast("Could not read image", "error");
+        fr.readAsDataURL(f);
+      } else done();
+    });
+
+    // Theme & language
+    document.getElementById("s_theme")?.addEventListener("change", e => {
+      DB.data.settings.theme = e.target.value; DB.save(); App.applySettings();
+    });
+    document.getElementById("s_lang")?.addEventListener("change", e => {
+      DB.data.settings.lang = e.target.value; DB.save(); i18n.setLang(e.target.value);
+    });
+
+    // Grades CRUD (inline)
+    document.getElementById("addGrade")?.addEventListener("click", () => {
+      DB.upsert("grades", { name: "" });
+      App.renderPageOnly();
+    });
+    document.querySelectorAll("[data-del-grade]").forEach(b => {
+      b.onclick = () => UI.confirm(
+        `${i18n.t("common.confirmDelete")} — this also removes its classes and unassigns students.`,
+        () => { DB.remove("grades", b.dataset.delGrade); App.renderPageOnly(); }
+      );
+    });
+    document.querySelectorAll("#gradesList .lookup-row").forEach(row => {
+      const id = row.dataset.id;
+      row.querySelectorAll("[data-gf]").forEach(inp => {
+        inp.addEventListener("change", () => {
+          const g = DB.get("grades", id); if (!g) return;
+          g[inp.dataset.gf] = inp.value.trim();
+          DB.upsert("grades", g);
+          UI.toast(i18n.t("common.saved"), "success");
+          App.renderPageOnly();
+        });
+      });
+    });
+
+    // Classes CRUD (inline)
+    document.getElementById("addClass")?.addEventListener("click", () => {
+      const firstGrade = DB.list("grades")[0];
+      DB.upsert("classes", { name: "", gradeId: firstGrade ? firstGrade.id : "" });
+      App.renderPageOnly();
+    });
+    document.querySelectorAll("[data-del-class]").forEach(b => {
+      b.onclick = () => UI.confirm(i18n.t("common.confirmDelete"), () => {
+        DB.remove("classes", b.dataset.delClass);
+        App.renderPageOnly();
+      });
+    });
+    document.querySelectorAll("#classesList .lookup-row").forEach(row => {
+      const id = row.dataset.id;
+      row.querySelectorAll("[data-cf]").forEach(inp => {
+        inp.addEventListener("change", () => {
+          const c = DB.get("classes", id); if (!c) return;
+          c[inp.dataset.cf] = inp.value.trim();
+          DB.upsert("classes", c);
+          UI.toast(i18n.t("common.saved"), "success");
+        });
+      });
+    });
+
+    // Shifts CRUD (inline)
+    document.getElementById("addShift")?.addEventListener("click", () => {
+      DB.upsert("shifts", { name: "", start: "", end: "" });
+      App.renderPageOnly();
+    });
+    document.querySelectorAll("[data-del-shift]").forEach(b => {
+      b.onclick = () => UI.confirm(i18n.t("common.confirmDelete"), () => {
+        DB.remove("shifts", b.dataset.delShift);
+        App.renderPageOnly();
+      });
+    });
+    document.querySelectorAll("#shiftsList .lookup-row").forEach(row => {
+      const id = row.dataset.id;
+      row.querySelectorAll("[data-sf]").forEach(inp => {
+        inp.addEventListener("change", () => {
+          const sh = DB.get("shifts", id);
+          if (!sh) return;
+          sh[inp.dataset.sf] = inp.value.trim();
+          DB.upsert("shifts", sh);
+          UI.toast(i18n.t("common.saved"), "success");
+        });
+      });
+    });
+
+    // Book types CRUD (inline)
+    document.getElementById("addType")?.addEventListener("click", () => {
+      DB.upsert("bookTypes", { name: "" });
+      App.renderPageOnly();
+    });
+    document.querySelectorAll("[data-del-type]").forEach(b => {
+      b.onclick = () => UI.confirm(i18n.t("common.confirmDelete"), () => {
+        DB.remove("bookTypes", b.dataset.delType);
+        App.renderPageOnly();
+      });
+    });
+    document.querySelectorAll("#typesList .lookup-row").forEach(row => {
+      const id = row.dataset.id;
+      row.querySelectorAll("[data-tf]").forEach(inp => {
+        inp.addEventListener("change", () => {
+          const t = DB.get("bookTypes", id);
+          if (!t) return;
+          t[inp.dataset.tf] = inp.value.trim();
+          DB.upsert("bookTypes", t);
+          UI.toast(i18n.t("common.saved"), "success");
+        });
+      });
+    });
+
+    // Backup
+    document.getElementById("btnBackup")?.addEventListener("click", () => {
+      const blob = new Blob([DB.export()], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `school_backup_${DB.today()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      UI.toast(i18n.t("common.saved"), "success");
+    });
+    // Restore
+    document.getElementById("btnRestore")?.addEventListener("click", () => {
+      document.getElementById("restoreFile").click();
+    });
+    document.getElementById("restoreFile")?.addEventListener("change", e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const fr = new FileReader();
+      fr.onload = () => {
+        try {
+          DB.import(fr.result);
+          UI.toast(i18n.t("common.saved"), "success");
+          App.applySettings();
+          App.renderPageOnly();
+        } catch (err) { UI.toast(err.message, "error"); }
+      };
+      fr.onerror = () => UI.toast("Could not read file", "error");
+      fr.readAsText(f);
+    });
+
+    // Reset
+    document.getElementById("btnReset")?.addEventListener("click", () => {
+      UI.confirm(i18n.t("settings.resetConfirm"), () => {
+        DB.reset();
+        UI.toast(i18n.t("common.saved"), "success");
+        App.applySettings();
+        App.renderPageOnly();
+      }, { okLabel: i18n.t("settings.reset") });
+    });
+
+    // Sample data
+    document.getElementById("btnSample")?.addEventListener("click", () => {
+      UI.confirm(i18n.t("settings.sampleDesc"), () => {
+        DB.loadSample();
+        UI.toast(i18n.t("settings.sampleAdded"), "success");
+        App.go("dashboard");
+      }, { okLabel: i18n.t("settings.sampleBtn"), danger: false });
+    });
+
+    // How-to guide
+    document.getElementById("btnHowto")?.addEventListener("click", () => Settings.showHowto());
+  },
+
+  showHowto() {
+    UI.modal({
+      title: i18n.t("settings.howto"),
+      wide: true,
+      bodyHTML: `
+        <div style="line-height:1.65;color:var(--text-soft)">
+          <div class="howto-step">
+            <div class="howto-num">1</div>
+            <div>
+              <div class="howto-title">Set up once — <em>Grades, Classes, Teachers, Subjects, Students</em></div>
+              <div>In <strong>Settings</strong> define your grades (e.g. Grade 11, Grade 12) and classes under each grade (e.g. 12-A, 12-B). Then add teachers, create subjects (like <em>"Math — Grade 12"</em>) assigning a teacher and optional target grade. Finally add students, pick their grade + class, and tick the subjects they're enrolled in.</div>
+            </div>
+          </div>
+          <div class="howto-step">
+            <div class="howto-num">2</div>
+            <div>
+              <div class="howto-title">Every day — record book sales</div>
+              <div>Open <strong>Sales</strong>. In the quick-add bar, type the book name, pick the teacher, type, <strong>grade &amp; class</strong>, enter quantity &amp; price, and press <kbd>Enter</kbd>. The row appears in today's ledger. Book names remembered from previous days will autocomplete and refill teacher / type / grade / class / price for you — so repeat sales are just <em>type → Enter</em>.</div>
+            </div>
+          </div>
+          <div class="howto-step">
+            <div class="howto-num">3</div>
+            <div>
+              <div class="howto-title">End of day — click <em>Start new day</em></div>
+              <div>This closes today's session and starts a new one. Nothing is deleted — all records stay saved and appear in Reports.</div>
+            </div>
+          </div>
+          <div class="howto-step">
+            <div class="howto-num">4</div>
+            <div>
+              <div class="howto-title">Anytime — check <em>Reports</em></div>
+              <div>See revenue for Today, Last 7 days, Last 30 days, or a custom range. See top-selling books, top teachers, best days of the week, and export to CSV or print.</div>
+            </div>
+          </div>
+          <div class="howto-step">
+            <div class="howto-num">5</div>
+            <div>
+              <div class="howto-title">Weekly — download a backup</div>
+              <div>Settings → <em>Download backup</em> saves everything into one JSON file. If you switch computers or the browser data is cleared, use <em>Restore</em> to bring everything back.</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;padding:12px 14px;background:var(--panel-2);border-radius:8px;color:var(--text-soft);font-size:13px">
+            💡 Tip — Book Types (Full Course / First Half / Second Half) and Shifts are managed in this Settings page. Add or edit them anytime.
+          </div>
+        </div>
+      `,
+      footerHTML: `
+        <button class="btn primary" data-close>${i18n.t("common.close")}</button>
+      `,
+      onOpen(m) {
+        m.querySelector("[data-close]").onclick = UI.closeModal;
+      }
+    });
+  }
+};
+
+
+// ===== js/app.js =====
+// 7-tab flat navigation.
+const ROUTES = [
+  { id: "dashboard", label: "nav.dashboard", icon: "dashboard", module: () => Dashboard },
+  { id: "sales",     label: "nav.sales",     icon: "sales",     module: () => Sales     },
+  { id: "schedule",  label: "nav.schedule",  icon: "calendar",  module: () => Schedule  },
+  { id: "students",  label: "nav.students",  icon: "user",      module: () => Students  },
+  { id: "subjects",  label: "nav.subjects",  icon: "subject",   module: () => Subjects  },
+  { id: "teachers",  label: "nav.teachers",  icon: "teacher",   module: () => Teachers  },
+  { id: "reports",   label: "nav.reports",   icon: "reports",   module: () => Reports   },
+  { id: "settings",  label: "nav.settings",  icon: "settings",  module: () => Settings  }
+];
+
+const App = {
+  current: "dashboard",
+
+  init() {
+    try { DB.load(); } catch (e) { console.error(e); DB.data = DB.defaults(); }
+
+    // Language
+    const lang = (DB.data.settings && DB.data.settings.lang) || i18n.lang || "en";
+    i18n.lang = lang;
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+
+    try { this.buildSidebar(); }    catch (e) { console.error("sidebar", e); }
+    try { this.applySettings(); }   catch (e) { console.error("settings", e); }
+    try { this.paintChromeIcons(); }catch (e) { console.error("icons", e); }
+    try { this.bindChrome(); }      catch (e) { console.error("chrome", e); }
+
+    UI.closeModal();
+    i18n.apply();
+    this.go("dashboard");
+  },
+
+  buildSidebar() {
+    const nav = document.getElementById("sideNav");
+    if (!nav) return;
+    nav.innerHTML = ROUTES.map(r => `
+      <a class="nav-item" data-route="${r.id}" href="#">
+        <span class="ic">${icon(r.icon)}</span>
+        <span data-i18n="${r.label}">${UI.escape(i18n.t(r.label))}</span>
+      </a>
+    `).join("");
+    nav.querySelectorAll(".nav-item[data-route]").forEach(a => {
+      a.addEventListener("click", e => { e.preventDefault(); this.go(a.dataset.route); });
+    });
+    this.highlightNav();
+  },
+
+  paintChromeIcons() {
+    const menu   = document.getElementById("menuToggle");
+    const theme  = document.getElementById("themeToggle");
+    const closeB = document.getElementById("modalClose");
+    if (menu)   menu.innerHTML   = icon("menu");
+    if (closeB) closeB.innerHTML = icon("close");
+    if (theme)  theme.innerHTML  = icon(DB.data.settings.theme === "dark" ? "sun" : "moon");
+  },
+
+  bindChrome() {
+    document.querySelectorAll(".lang-switch button[data-lang]").forEach(b => {
+      b.addEventListener("click", () => {
+        DB.data.settings.lang = b.dataset.lang;
+        DB.save();
+        i18n.setLang(b.dataset.lang);
+      });
+    });
+    document.getElementById("themeToggle")?.addEventListener("click", () => {
+      DB.data.settings.theme = DB.data.settings.theme === "dark" ? "light" : "dark";
+      DB.save();
+      this.applySettings();
+      this.paintChromeIcons();
+    });
+    document.getElementById("menuToggle")?.addEventListener("click", () => {
+      document.body.classList.toggle("sidebar-open");
+    });
+    document.getElementById("globalSearch")?.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        const q = e.target.value.trim();
+        if (!q) return;
+        Students.filter.q = q;
+        this.go("students");
+        e.target.value = "";
+      }
+    });
+    document.getElementById("modalClose")?.addEventListener("click", UI.closeModal);
+    document.getElementById("modalBackdrop")?.addEventListener("click", e => {
+      if (e.target.id === "modalBackdrop") UI.closeModal();
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") UI.closeModal();
+    });
+  },
+
+  applySettings() {
+    document.documentElement.dataset.theme = DB.data.settings.theme || "light";
+    const brandName = document.getElementById("brandName");
+    if (brandName) brandName.textContent = DB.data.settings.orgName || "School Manager";
+    const brandLogo = document.getElementById("brandLogo");
+    if (brandLogo) {
+      if (DB.data.settings.logo) {
+        brandLogo.innerHTML = `<img src="${DB.data.settings.logo}" alt="logo"/>`;
+      } else {
+        brandLogo.innerHTML = "";
+        brandLogo.textContent = (DB.data.settings.orgName || "S").charAt(0).toUpperCase();
+      }
+    }
+    this.paintChromeIcons();
+  },
+
+  highlightNav() {
+    document.querySelectorAll(".nav-item").forEach(a =>
+      a.classList.toggle("active", a.dataset.route === this.current)
+    );
+  },
+
+  routeCfg(id) { return ROUTES.find(r => r.id === id); },
+
+  go(routeId) {
+    if (!this.routeCfg(routeId)) routeId = "dashboard";
+    this.current = routeId;
+    this.highlightNav();
+    document.body.classList.remove("sidebar-open");
+    const crumb = document.getElementById("crumbPage");
+    if (crumb) crumb.textContent = i18n.t(this.routeCfg(routeId).label);
+    this.renderPageOnly();
+  },
+
+  renderPageOnly() {
+    const content = document.getElementById("content");
+    if (!content) return;
+    const mod = this.routeCfg(this.current).module();
+    try {
+      content.innerHTML = mod.render();
+      if (mod.bind) mod.bind();
+      i18n.apply();
+    } catch (e) {
+      console.error("Render error", e);
+      content.innerHTML = `<div class="card"><div class="card-body">
+        ${UI.empty("Something went wrong: " + UI.escape(e.message))}
+      </div></div>`;
+    }
+  },
+
+  rerender() {
+    this.buildSidebar();
+    this.applySettings();
+    const crumb = document.getElementById("crumbPage");
+    if (crumb) crumb.textContent = i18n.t(this.routeCfg(this.current).label);
+    this.renderPageOnly();
+  }
+};
+
+window.addEventListener("DOMContentLoaded", () => App.init());
+window.App = App;
+window.DB = DB;
+window.UI = UI;
+window.i18n = i18n;
+window.Dashboard = Dashboard;
+window.Students = Students;
+window.Subjects = Subjects;
+window.Teachers = Teachers;
+window.Sales = Sales;
+window.Schedule = Schedule;
+window.Reports = Reports;
+window.Settings = Settings;
+
+
+</script>
+</body>
+</html>

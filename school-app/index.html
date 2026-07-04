@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ORASIA — School Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo" id="brandLogo">S</div>
+        <div class="brand-text">
+          <div class="brand-name" id="brandName">School Manager</div>
+          <div class="brand-sub" data-i18n="brand.sub">School Manager</div>
+        </div>
+      </div>
+
+      <nav class="nav" id="sideNav"></nav>
+
+      <div class="sidebar-footer">
+        <div class="mini">v2.0 • <span data-i18n="footer.offline">Offline-ready</span></div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn" id="menuToggle" title="Menu"></button>
+          <div class="crumb">
+            <span data-i18n="brand.short">School</span>
+            <span class="sep">/</span>
+            <span id="crumbPage" data-i18n="nav.dashboard">Dashboard</span>
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="search-mini">
+            <input id="globalSearch" placeholder="Search…" data-i18n-ph="topbar.search" />
+          </div>
+          <button class="ghost-btn" id="themeToggle" title="Theme"></button>
+          <div class="lang-switch">
+            <button data-lang="en" class="active">EN</button>
+            <button data-lang="ar">ع</button>
+          </div>
+        </div>
+      </header>
+
+      <section class="content" id="content"></section>
+    </main>
+  </div>
+
+  <div class="modal-backdrop" id="modalBackdrop" hidden>
+    <div class="modal" id="modal" role="dialog" aria-modal="true">
+      <header class="modal-head">
+        <h3 id="modalTitle">Title</h3>
+        <button class="icon-btn" id="modalClose"></button>
+      </header>
+      <div class="modal-body" id="modalBody"></div>
+      <footer class="modal-foot" id="modalFoot"></footer>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="js/icons.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/modules/dashboard.js"></script>
+  <script src="js/modules/sales.js"></script>
+  <script src="js/modules/schedule.js"></script>
+  <script src="js/modules/students.js"></script>
+  <script src="js/modules/subjects.js"></script>
+  <script src="js/modules/teachers.js"></script>
+  <script src="js/modules/reports.js"></script>
+  <script src="js/modules/settings.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
