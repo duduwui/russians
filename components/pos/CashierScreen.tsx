@@ -391,7 +391,7 @@ export function CashierScreen({
   };
 
   return (
-    <div className="h-full w-full overflow-hidden flex flex-col bg-[#F8FAFC]">
+    <div className="h-screen max-h-screen w-full overflow-hidden flex flex-col bg-[#F8FAFC]">
       {/* Top Header (Fixed Height) */}
       <Header
         searchQuery={searchQuery}

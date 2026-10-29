@@ -34,9 +34,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" dir="ltr" suppressHydrationWarning>
+    <html lang="en" dir="ltr" className="h-full overflow-hidden" suppressHydrationWarning>
       <body
-        className={`${poppins.variable} ${inter.variable} ${vazirmatn.variable} font-sans antialiased min-h-screen bg-[#F8FAFC] text-[#0F1728]`}
+        className={`${poppins.variable} ${inter.variable} ${vazirmatn.variable} font-sans antialiased h-screen max-h-screen w-screen overflow-hidden bg-[#F8FAFC] text-[#0F1728]`}
       >
         {children}
       </body>

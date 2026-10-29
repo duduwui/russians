@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { CartItem } from "@/types/pos";
 import { CartItemRow } from "./CartItemRow";
 import {
@@ -52,7 +52,7 @@ export function CartPanel({
   lang,
 }: CartPanelProps) {
   const [isEditingDiscount, setIsEditingDiscount] = useState(false);
-  const [cashReceivedInput, setCashReceivedInput] = useState<string>("");
+  const [customCashInput, setCustomCashInput] = useState<string | null>(null);
   const cashInputRef = useRef<HTMLInputElement>(null);
 
   // Totals calculations
@@ -76,28 +76,20 @@ export function CartPanel({
 
   const isCartEmpty = items.length === 0;
 
-  // Auto-sync cash input to exact amount when cart changes (if empty)
-  useEffect(() => {
-    if (items.length > 0 && !cashReceivedInput) {
-      setCashReceivedInput(grandTotal.toFixed(2));
-    } else if (items.length === 0) {
-      setCashReceivedInput("");
-    }
-  }, [items.length, grandTotal, cashReceivedInput]);
-
-  const cashReceived = parseFloat(cashReceivedInput) || grandTotal;
+  // Real-time cash tracking: if cashier entered a custom amount >= total, use it; otherwise automatically exact total!
+  const customNum = customCashInput !== null ? parseFloat(customCashInput) : NaN;
+  const cashReceived = !isNaN(customNum) && customNum >= grandTotal ? customNum : grandTotal;
   const changeDue = Math.max(0, cashReceived - grandTotal);
-  const isInsufficient = cashReceived < grandTotal;
 
-  // Direct checkout submit
+  // Direct 1-click checkout submit - ALWAYS ACTIVE AND UNBLOCKED
   const handleCashCheckout = () => {
-    if (isCartEmpty || isInsufficient) return;
+    if (isCartEmpty) return;
     onDirectCashPay(cashReceived, changeDue);
-    setCashReceivedInput("");
+    setCustomCashInput(null);
   };
 
   return (
-    <div className="w-full h-full flex flex-col bg-white border border-[#EEEEEE] rounded-[16px] shadow-sm overflow-hidden">
+    <div className="w-full h-full min-h-0 flex flex-col bg-white border border-[#EEEEEE] rounded-[16px] shadow-sm overflow-hidden">
       {/* Panel Header */}
       <div className="p-3 border-b border-[#EEEEEE] bg-[#F8FAFC]/70 shrink-0">
         <div className="flex items-center justify-between gap-2 mb-2">
@@ -116,13 +108,8 @@ export function CartPanel({
               <button
                 type="button"
                 onClick={handleCashCheckout}
-                disabled={isInsufficient}
-                className={`flex items-center gap-1.5 text-xs font-black px-2.5 py-1 rounded-md shadow-sm cursor-pointer transition-all active:scale-95 ${
-                  isInsufficient
-                    ? "bg-amber-600 text-white cursor-not-allowed"
-                    : "bg-[#00a65a] hover:bg-[#008d4c] text-white ring-2 ring-emerald-300"
-                }`}
-                title="Quick Pay (F2)"
+                className="flex items-center gap-1.5 text-xs font-black px-2.5 py-1 rounded-md shadow-xs cursor-pointer transition-all active:scale-95 bg-[#00a65a] hover:bg-[#008d4c] text-white ring-2 ring-emerald-300"
+                title="Quick Pay Cash (F2)"
               >
                 <CreditCard className="w-3.5 h-3.5" />
                 <span>PAY ${grandTotal.toFixed(2)}</span>
@@ -279,73 +266,92 @@ export function CartPanel({
           </div>
         </div>
 
-        {/* Compact Seamless Cash Input & Change Due In 1 Single Line */}
+        {/* Compact Seamless Cash Input, Change Due & Quick Bills */}
         {!isCartEmpty && (
-          <div className="p-1.5 sm:p-2 bg-emerald-50/90 rounded-lg border border-emerald-300 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs font-bold text-slate-800 shrink-0">
-                {lang === "ckb" ? "پارەی وەرگیراو:" : "Cash ($):"}
-              </span>
-              <input
-                ref={cashInputRef}
-                type="number"
-                step="any"
-                value={cashReceivedInput}
-                onChange={(e) => setCashReceivedInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleCashCheckout();
-                }}
-                className="w-20 h-7 px-1.5 text-xs font-black text-end bg-white border border-emerald-400 rounded focus:outline-hidden tabular-nums shadow-2xs"
-              />
-              <button
-                type="button"
-                onClick={() => setCashReceivedInput(grandTotal.toFixed(2))}
-                className="text-[10px] px-1.5 py-1 rounded bg-white border border-emerald-300 text-[#00a65a] font-bold hover:bg-emerald-100 cursor-pointer shadow-2xs"
-                title="Exact amount"
-              >
-                Exact
-              </button>
+          <div className="p-2 bg-emerald-50/90 rounded-lg border border-emerald-300 space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-800 shrink-0">
+                  {lang === "ckb" ? "پارەی دراو:" : "Cash ($):"}
+                </span>
+                <input
+                  ref={cashInputRef}
+                  type="number"
+                  step="any"
+                  value={customCashInput ?? grandTotal.toFixed(2)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCustomCashInput(val === "" ? null : val);
+                  }}
+                  onFocus={(e) => e.target.select()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleCashCheckout();
+                  }}
+                  className="w-20 h-7 px-1.5 text-xs font-black text-end bg-white border border-emerald-400 rounded focus:outline-hidden tabular-nums shadow-2xs"
+                />
+                <button
+                  type="button"
+                  onClick={() => setCustomCashInput(null)}
+                  className="text-[10px] px-2 py-1 rounded bg-white border border-emerald-300 text-[#00a65a] font-bold hover:bg-emerald-100 cursor-pointer shadow-2xs"
+                  title="Exact total"
+                >
+                  Exact
+                </button>
+              </div>
+
+              {/* Change Due Indicator */}
+              <div className="text-end shrink-0">
+                <span className="text-[10px] text-[#667084] font-medium block leading-none mb-0.5">
+                  {lang === "ckb" ? "بڕی ماوە:" : "Change Due:"}
+                </span>
+                <span className="font-black text-sm sm:text-base text-[#00a65a] tabular-nums leading-none">
+                  {formatCurrency(changeDue)}
+                </span>
+              </div>
             </div>
 
-            {/* Change Due Indicator */}
-            <div className="text-end shrink-0">
-              <span className="text-[10px] text-[#667084] font-medium block leading-none mb-0.5">
-                {lang === "ckb" ? "بڕی ماوە:" : "Change Due:"}
-              </span>
-              <span className="font-black text-sm sm:text-base text-[#00a65a] tabular-nums leading-none">
-                {formatCurrency(changeDue)}
-              </span>
+            {/* Quick Bill Buttons ($10, $20, $50, $100) for instant cash registration */}
+            <div className="flex items-center gap-1 pt-1 border-t border-emerald-200/70">
+              <span className="text-[10px] text-slate-500 font-medium">Quick Bills:</span>
+              {[10, 20, 50, 100].map((bill) => (
+                <button
+                  key={bill}
+                  type="button"
+                  onClick={() => setCustomCashInput(bill.toString())}
+                  className="px-2 py-0.5 bg-white hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 text-[10px] font-bold rounded border border-emerald-200 shadow-2xs cursor-pointer transition-colors"
+                >
+                  ${bill}
+                </button>
+              ))}
             </div>
           </div>
         )}
 
-        {/* THE MAIN UNMISTAKABLE CALCULATE & PAY BUTTON */}
+        {/* THE MAIN UNMISTAKABLE CALCULATE & PAY BUTTON - ALWAYS VISIBLE, ALWAYS GREEN, 1 CLICK */}
         <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-0.5">
           <button
             type="button"
             disabled={isCartEmpty}
             onClick={onHoldSale}
-            className={`col-span-1 h-11 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold border transition-colors ${
+            className={`col-span-1 h-12 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold border transition-colors ${
               isCartEmpty
                 ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
                 : "bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300 cursor-pointer active:scale-98"
             }`}
             title="Hold Sale (F4)"
           >
-            <PauseCircle className="w-3.5 h-3.5 mb-0.5" />
+            <PauseCircle className="w-4 h-4 mb-0.5" />
             <span>F4 Hold</span>
           </button>
 
           <button
             type="button"
-            disabled={isCartEmpty || isInsufficient}
+            disabled={isCartEmpty}
             onClick={handleCashCheckout}
-            className={`col-span-3 h-11 rounded-lg font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
+            className={`col-span-3 h-12 rounded-lg font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer select-none active:scale-[0.98] ${
               isCartEmpty
                 ? "bg-emerald-50 border-2 border-dashed border-emerald-400 text-emerald-800 cursor-not-allowed"
-                : isInsufficient
-                ? "bg-amber-600 text-white cursor-not-allowed"
-                : "bg-[#00a65a] hover:bg-[#008d4c] text-white shadow-md shadow-emerald-700/30 active:scale-[0.98] ring-2 ring-emerald-400"
+                : "bg-[#00a65a] hover:bg-[#008d4c] text-white shadow-lg shadow-emerald-700/30 ring-2 ring-emerald-400"
             }`}
             title="Pay Cash & Print Receipt (F2 / Enter)"
           >
@@ -355,10 +361,10 @@ export function CartPanel({
                 ? lang === "ckb"
                   ? "CALCULATE / PAY (F2) [سەبەتە بەتاڵە]"
                   : "CALCULATE / PAY (F2) [Cart is empty]"
-                : isInsufficient
+                : changeDue > 0
                 ? lang === "ckb"
-                  ? "پارەی دراو بەش ناکات"
-                  : "Insufficient Cash"
+                  ? `CALCULATE & PAY: $${grandTotal.toFixed(2)} (ماوە: $${changeDue.toFixed(2)})`
+                  : `CALCULATE & PAY: $${grandTotal.toFixed(2)} (Change: $${changeDue.toFixed(2)})`
                 : lang === "ckb"
                 ? `CALCULATE & PAY: $${grandTotal.toFixed(2)} (F2)`
                 : `CALCULATE & PAY: $${grandTotal.toFixed(2)} (F2)`}
