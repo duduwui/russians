@@ -16,8 +16,21 @@ import {
   HeldSale,
 } from "@/types/pos";
 
-export function CashierScreen() {
-  const [lang, setLang] = useState<"en" | "ckb">("en");
+interface CashierScreenProps {
+  onBackToDashboard?: () => void;
+  lang?: "en" | "ckb";
+  onToggleLang?: () => void;
+}
+
+export function CashierScreen({
+  onBackToDashboard,
+  lang: controlledLang,
+  onToggleLang: controlledOnToggleLang,
+}: CashierScreenProps = {}) {
+  const [internalLang, setInternalLang] = useState<"en" | "ckb">("en");
+  const lang = controlledLang ?? internalLang;
+
+  const [activeMobileTab, setActiveMobileTab] = useState<"catalog" | "cart">("catalog");
   const [categories, setCategories] = useState(MOCK_CATEGORIES);
   const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("cat-1");
@@ -367,14 +380,18 @@ export function CashierScreen() {
 
   // Toggle Language & Direction
   const handleToggleLang = () => {
+    if (controlledOnToggleLang) {
+      controlledOnToggleLang();
+      return;
+    }
     const nextLang = lang === "en" ? "ckb" : "en";
-    setLang(nextLang);
+    setInternalLang(nextLang);
     document.documentElement.dir = nextLang === "ckb" ? "rtl" : "ltr";
     document.documentElement.lang = nextLang;
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden flex flex-col bg-[#F8FAFC]">
+    <div className="h-full w-full overflow-hidden flex flex-col bg-[#F8FAFC]">
       {/* Top Header (Fixed Height) */}
       <Header
         searchQuery={searchQuery}
@@ -382,13 +399,52 @@ export function CashierScreen() {
         onBarcodeScan={handleBarcodeScan}
         lang={lang}
         onToggleLang={handleToggleLang}
+        onBackToDashboard={onBackToDashboard}
       />
 
-      {/* Main Cashier Workspace (Strict 100vh lock, no outer scrollbar) */}
-      <main className="flex-1 min-h-0 p-3 overflow-hidden flex flex-col">
-        <div className="flex-1 min-h-0 grid grid-cols-12 gap-3 items-stretch h-full">
-          {/* Left Column: Categories + Product Catalog Grid (8 cols) */}
-          <div className="col-span-12 lg:col-span-8 h-full min-h-0 flex flex-col overflow-hidden">
+      {/* Mobile/Narrow Screen Toggle Pills */}
+      <div className="md:hidden flex items-center bg-white border-b border-slate-200 px-3 py-1.5 gap-2 shrink-0 select-none">
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("catalog")}
+          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors cursor-pointer ${
+            activeMobileTab === "catalog"
+              ? "bg-[#00a65a] text-white shadow-xs"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+          }`}
+        >
+          📦 {lang === "ckb" ? "کاڵاکان" : "Products"} ({filteredProducts.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveMobileTab("cart")}
+          className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer ${
+            activeMobileTab === "cart"
+              ? "bg-[#00a65a] text-white shadow-xs"
+              : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+          }`}
+        >
+          <span>🛒 {lang === "ckb" ? "سەبەتە" : "Cart"}</span>
+          <span className="w-5 h-5 rounded-full bg-white/25 text-[10px] font-black flex items-center justify-center">
+            {cart.reduce((s, i) => s + i.quantity, 0)}
+          </span>
+          {cart.length > 0 && (
+            <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-[#00a65a] text-[10px] font-black tabular-nums">
+              ${grandTotal.toFixed(2)}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Main Cashier Workspace (Strict 100% viewport lock, no outer scrollbar) */}
+      <main className="flex-1 min-h-0 p-2.5 overflow-hidden flex flex-col">
+        <div className="flex-1 min-h-0 flex flex-col md:flex-row gap-3 items-stretch h-full">
+          {/* Left Column: Categories + Product Catalog Grid */}
+          <div
+            className={`flex-1 min-w-0 h-full min-h-0 flex flex-col overflow-hidden ${
+              activeMobileTab === "cart" ? "hidden md:flex" : "flex"
+            }`}
+          >
             {/* Category Filter Pills (Shrink-0) */}
             <div className="shrink-0 mb-2">
               <CategoryBar
@@ -403,14 +459,21 @@ export function CashierScreen() {
             <div className="flex-1 min-h-0 overflow-y-auto pe-1">
               <ProductGrid
                 products={filteredProducts}
-                onAddToCart={handleAddToCart}
+                onAddToCart={(prod) => {
+                  handleAddToCart(prod);
+                  // If on mobile and empty cart, quick visual feedback
+                }}
                 lang={lang}
               />
             </div>
           </div>
 
-          {/* Right Column: Order Cart Panel (4 cols, 100% height, ALWAYS visible Pay button) */}
-          <div className="col-span-12 lg:col-span-4 h-full min-h-0 flex flex-col overflow-hidden">
+          {/* Right Column: Order Cart Panel (100% height, ALWAYS visible Pay button) */}
+          <div
+            className={`w-full md:w-[380px] lg:w-[410px] xl:w-[440px] shrink-0 h-full min-h-0 flex flex-col overflow-hidden ${
+              activeMobileTab === "catalog" ? "hidden md:flex" : "flex"
+            }`}
+          >
             <CartPanel
               items={cart}
               customerName={customerName}

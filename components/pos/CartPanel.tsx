@@ -10,7 +10,6 @@ import {
   Tag,
   Percent,
   User,
-  CheckCircle2,
   Printer,
   CreditCard,
   ArrowDown,
@@ -118,11 +117,15 @@ export function CartPanel({
                 type="button"
                 onClick={handleCashCheckout}
                 disabled={isInsufficient}
-                className="flex items-center gap-1 text-[11px] font-bold text-white bg-[#00a65a] hover:bg-[#008d4c] px-2.5 py-1 rounded-[6px] shadow-xs cursor-pointer transition-transform active:scale-95"
+                className={`flex items-center gap-1.5 text-xs font-black px-2.5 py-1 rounded-md shadow-sm cursor-pointer transition-all active:scale-95 ${
+                  isInsufficient
+                    ? "bg-amber-600 text-white cursor-not-allowed"
+                    : "bg-[#00a65a] hover:bg-[#008d4c] text-white ring-2 ring-emerald-300"
+                }`}
                 title="Quick Pay (F2)"
               >
                 <CreditCard className="w-3.5 h-3.5" />
-                <span>PAY (F2)</span>
+                <span>PAY ${grandTotal.toFixed(2)}</span>
               </button>
             )}
 
@@ -202,54 +205,53 @@ export function CartPanel({
       </div>
 
       {/* Fixed Totals, Cash Input & Pay Button (ALWAYS 100% visible, zero scrolling needed) */}
-      <div className="p-3 border-t-2 border-slate-200 bg-[#F8FAFC] space-y-2 shrink-0 shadow-lg">
-        {/* Subtotal & Discount row */}
-        <div className="flex items-center justify-between text-[11px] text-[#667084]">
-          <span>{lang === "ckb" ? "کۆی سەرەتایی:" : "Subtotal:"}</span>
-          <span className="font-semibold text-[#0F1728] tabular-nums">
-            {formatCurrency(itemsSubtotal)}
-          </span>
-        </div>
+      <div className="p-2.5 sm:p-3 border-t-2 border-slate-200 bg-[#F8FAFC] space-y-1.5 shrink-0 shadow-lg">
+        {/* Compact Subtotal & Discount row */}
+        <div className="flex items-center justify-between text-xs text-[#667084]">
+          <div className="flex items-center gap-1.5">
+            <span>{lang === "ckb" ? "کۆی سەرەتایی:" : "Subtotal:"}</span>
+            <span className="font-semibold text-[#0F1728] tabular-nums">
+              {formatCurrency(itemsSubtotal)}
+            </span>
+          </div>
 
-        {/* Order Discount */}
-        <div className="flex items-center justify-between text-[11px] text-[#667084]">
           <div className="flex items-center gap-1">
             <Tag className="w-3 h-3 text-[#00a65a]" />
-            <span>{lang === "ckb" ? "داشکاندن:" : "Discount:"}</span>
+            <span>{lang === "ckb" ? "داشکاندن:" : "Disc:"}</span>
             {!isEditingDiscount && (
               <button
                 type="button"
                 onClick={() => setIsEditingDiscount(true)}
-                className="text-[10px] text-[#00a65a] hover:underline cursor-pointer font-bold"
+                className="text-[11px] text-[#00a65a] hover:underline cursor-pointer font-bold"
               >
                 (edit)
               </button>
             )}
+            {isEditingDiscount ? (
+              <input
+                type="number"
+                min="0"
+                step="0.5"
+                value={orderDiscount || ""}
+                placeholder="0"
+                onChange={(e) =>
+                  onOrderDiscountChange(
+                    Math.max(0, parseFloat(e.target.value) || 0)
+                  )
+                }
+                onBlur={() => setIsEditingDiscount(false)}
+                autoFocus
+                className="w-12 h-4 px-1 text-[11px] text-end border border-[#00a65a] rounded bg-white"
+              />
+            ) : (
+              <span className="font-semibold text-rose-600 tabular-nums">
+                -{formatCurrency(totalDiscount)}
+              </span>
+            )}
           </div>
-          {isEditingDiscount ? (
-            <input
-              type="number"
-              min="0"
-              step="0.5"
-              value={orderDiscount || ""}
-              placeholder="0"
-              onChange={(e) =>
-                onOrderDiscountChange(
-                  Math.max(0, parseFloat(e.target.value) || 0)
-                )
-              }
-              onBlur={() => setIsEditingDiscount(false)}
-              autoFocus
-              className="w-14 h-4 px-1 text-[11px] text-end border border-[#00a65a] rounded bg-white"
-            />
-          ) : (
-            <span className="font-semibold text-rose-600 tabular-nums">
-              -{formatCurrency(totalDiscount)}
-            </span>
-          )}
         </div>
 
-        {/* Tax */}
+        {/* Tax (if enabled) */}
         {taxRate > 0 && (
           <div className="flex items-center justify-between text-[11px] text-[#667084]">
             <div className="flex items-center gap-1">
@@ -263,57 +265,54 @@ export function CartPanel({
         )}
 
         {/* Grand Total */}
-        <div className="pt-1.5 border-t border-slate-300 flex items-baseline justify-between">
-          <div>
-            <div className="text-xs font-black text-[#0F1728] uppercase tracking-wide">
+        <div className="pt-1 border-t border-slate-200 flex items-center justify-between">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-xs font-black text-[#0F1728] uppercase tracking-wide">
               {lang === "ckb" ? "کۆی گشتی:" : "TOTAL DUE:"}
-            </div>
-            <div className="text-[10px] text-[#667084]">
-              {totalItemCount} {lang === "ckb" ? "کاڵا" : "items"}
-            </div>
+            </span>
+            <span className="text-[10px] text-[#667084]">
+              ({totalItemCount} {lang === "ckb" ? "کاڵا" : "items"})
+            </span>
           </div>
-          <div className="text-2xl font-black text-[#00a65a] tracking-tight tabular-nums">
+          <div className="text-xl sm:text-2xl font-black text-[#00a65a] tracking-tight tabular-nums">
             {formatCurrency(grandTotal)}
           </div>
         </div>
 
-        {/* Seamless Cash Input & Change Due (Directly in cart, NO popups) */}
+        {/* Compact Seamless Cash Input & Change Due In 1 Single Line */}
         {!isCartEmpty && (
-          <div className="p-2 bg-white rounded-lg border-2 border-emerald-500/30 space-y-1.5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-bold text-[#0F1728] shrink-0">
-                {lang === "ckb" ? "پارەی وەرگیراو:" : "Cash Received ($):"}
+          <div className="p-1.5 sm:p-2 bg-emerald-50/90 rounded-lg border border-emerald-300 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-800 shrink-0">
+                {lang === "ckb" ? "پارەی وەرگیراو:" : "Cash ($):"}
               </span>
-              <div className="flex items-center gap-1">
-                <input
-                  ref={cashInputRef}
-                  type="number"
-                  step="any"
-                  value={cashReceivedInput}
-                  onChange={(e) => setCashReceivedInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleCashCheckout();
-                  }}
-                  className="w-24 h-7 px-2 text-xs font-black text-end bg-[#F8FAFC] border-2 border-[#00a65a] rounded focus:outline-hidden tabular-nums"
-                />
-                <button
-                  type="button"
-                  onClick={() => setCashReceivedInput(grandTotal.toFixed(2))}
-                  className="text-[10px] px-2 py-1 rounded bg-emerald-100 text-[#00a65a] font-bold hover:bg-emerald-200 cursor-pointer"
-                  title="Exact amount"
-                >
-                  Exact
-                </button>
-              </div>
+              <input
+                ref={cashInputRef}
+                type="number"
+                step="any"
+                value={cashReceivedInput}
+                onChange={(e) => setCashReceivedInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleCashCheckout();
+                }}
+                className="w-20 h-7 px-1.5 text-xs font-black text-end bg-white border border-emerald-400 rounded focus:outline-hidden tabular-nums shadow-2xs"
+              />
+              <button
+                type="button"
+                onClick={() => setCashReceivedInput(grandTotal.toFixed(2))}
+                className="text-[10px] px-1.5 py-1 rounded bg-white border border-emerald-300 text-[#00a65a] font-bold hover:bg-emerald-100 cursor-pointer shadow-2xs"
+                title="Exact amount"
+              >
+                Exact
+              </button>
             </div>
 
             {/* Change Due Indicator */}
-            <div className="flex items-center justify-between text-xs pt-1 border-t border-slate-100">
-              <span className="text-[#667084] font-medium flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#00a65a]" />
+            <div className="text-end shrink-0">
+              <span className="text-[10px] text-[#667084] font-medium block leading-none mb-0.5">
                 {lang === "ckb" ? "بڕی ماوە:" : "Change Due:"}
               </span>
-              <span className="font-black text-base text-[#00a65a] tabular-nums">
+              <span className="font-black text-sm sm:text-base text-[#00a65a] tabular-nums leading-none">
                 {formatCurrency(changeDue)}
               </span>
             </div>
@@ -321,19 +320,19 @@ export function CartPanel({
         )}
 
         {/* THE MAIN UNMISTAKABLE CALCULATE & PAY BUTTON */}
-        <div className="grid grid-cols-4 gap-2 pt-1">
+        <div className="grid grid-cols-4 gap-1.5 sm:gap-2 pt-0.5">
           <button
             type="button"
             disabled={isCartEmpty}
             onClick={onHoldSale}
-            className={`col-span-1 h-12 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold border transition-colors ${
+            className={`col-span-1 h-11 rounded-lg flex flex-col items-center justify-center text-[10px] font-bold border transition-colors ${
               isCartEmpty
                 ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
                 : "bg-amber-50 hover:bg-amber-100 text-amber-800 border-amber-300 cursor-pointer active:scale-98"
             }`}
             title="Hold Sale (F4)"
           >
-            <PauseCircle className="w-4 h-4 mb-0.5" />
+            <PauseCircle className="w-3.5 h-3.5 mb-0.5" />
             <span>F4 Hold</span>
           </button>
 
@@ -341,12 +340,12 @@ export function CartPanel({
             type="button"
             disabled={isCartEmpty || isInsufficient}
             onClick={handleCashCheckout}
-            className={`col-span-3 h-12 rounded-lg font-black text-xs md:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
+            className={`col-span-3 h-11 rounded-lg font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition-all cursor-pointer select-none ${
               isCartEmpty
                 ? "bg-emerald-50 border-2 border-dashed border-emerald-400 text-emerald-800 cursor-not-allowed"
                 : isInsufficient
                 ? "bg-amber-600 text-white cursor-not-allowed"
-                : "bg-[#00a65a] hover:bg-[#008d4c] text-white shadow-lg shadow-emerald-700/30 active:scale-[0.98] ring-2 ring-emerald-400"
+                : "bg-[#00a65a] hover:bg-[#008d4c] text-white shadow-md shadow-emerald-700/30 active:scale-[0.98] ring-2 ring-emerald-400"
             }`}
             title="Pay Cash & Print Receipt (F2 / Enter)"
           >
@@ -356,6 +355,10 @@ export function CartPanel({
                 ? lang === "ckb"
                   ? "CALCULATE / PAY (F2) [سەبەتە بەتاڵە]"
                   : "CALCULATE / PAY (F2) [Cart is empty]"
+                : isInsufficient
+                ? lang === "ckb"
+                  ? "پارەی دراو بەش ناکات"
+                  : "Insufficient Cash"
                 : lang === "ckb"
                 ? `CALCULATE & PAY: $${grandTotal.toFixed(2)} (F2)`
                 : `CALCULATE & PAY: $${grandTotal.toFixed(2)} (F2)`}

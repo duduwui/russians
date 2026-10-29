@@ -12,6 +12,7 @@ import {
   Clock,
   Printer,
   Usb,
+  ArrowLeft,
 } from "lucide-react";
 import { getPrinterMode, setPrinterMode } from "@/lib/printer";
 import { webSerialPrinterInstance } from "@/lib/printer/web-serial-printer";
@@ -24,6 +25,7 @@ interface HeaderProps {
   onToggleLang: () => void;
   cashierName?: string;
   storeName?: string;
+  onBackToDashboard?: () => void;
 }
 
 export function Header({
@@ -34,6 +36,7 @@ export function Header({
   onToggleLang,
   cashierName = "Sarah Ayu Safitri",
   storeName = "Store 01",
+  onBackToDashboard,
 }: HeaderProps) {
   const [time, setTime] = useState("");
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -98,20 +101,32 @@ export function Header({
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-[#EEEEEE] px-4 py-2 shadow-xs shrink-0">
       <div className="flex items-center justify-between gap-4">
-        {/* Brand & Store Selector */}
-        <div className="flex items-center gap-3 shrink-0">
+        {/* Brand & Store Selector + Back to Dashboard */}
+        <div className="flex items-center gap-2.5 shrink-0">
+          {onBackToDashboard && (
+            <button
+              type="button"
+              onClick={onBackToDashboard}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#08a65c] hover:bg-[#018d4e] text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer active:scale-95 select-none"
+              title="Return to Admin Dashboard"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 rtl:rotate-180" />
+              <span>{lang === "ckb" ? "داشبۆرد" : "Dashboard"}</span>
+            </button>
+          )}
+
           <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-[10px] bg-[#017051] flex items-center justify-center text-white shadow-xs">
-              <ShoppingBag className="w-5 h-5" />
+            <div className="w-8 h-8 rounded-[8px] bg-[#017051] flex items-center justify-center text-white shadow-xs">
+              <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-base font-bold text-[#0F1728] tracking-tight flex items-center gap-1.5">
+              <span className="text-sm font-bold text-[#0F1728] tracking-tight flex items-center gap-1.5">
                 FreshCart
-                <span className="text-[10px] uppercase font-semibold px-2 py-0.5 rounded-full bg-[#EEF7EE] text-[#017051]">
+                <span className="text-[10px] uppercase font-semibold px-1.5 py-0.5 rounded-full bg-[#EEF7EE] text-[#017051]">
                   POS
                 </span>
               </span>
-              <div className="text-[11px] text-[#667084] flex items-center gap-1">
+              <div className="text-[10px] text-[#667084] flex items-center gap-1 leading-none">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                 <span>{storeName}</span>
               </div>

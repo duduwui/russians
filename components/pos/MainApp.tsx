@@ -42,23 +42,11 @@ export function MainApp() {
 
       case "pos":
         return (
-          <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-            {/* Back to Dashboard Banner */}
-            <div className="bg-white border-b border-[#EEEEEE] px-4 py-1.5 flex items-center justify-between text-xs shrink-0">
-              <button
-                onClick={() => setCurrentView("dashboard")}
-                className="text-[#08a65c] hover:underline font-bold flex items-center gap-1 cursor-pointer"
-              >
-                <span>← Back to Admin Dashboard</span>
-              </button>
-              <span className="text-[#777777] font-medium">Cashier Register Active</span>
-            </div>
-
-            {/* Cashier Screen */}
-            <div className="flex-1 min-h-0 overflow-hidden">
-              <CashierScreen />
-            </div>
-          </div>
+          <CashierScreen
+            onBackToDashboard={() => setCurrentView("dashboard")}
+            lang={lang}
+            onToggleLang={handleToggleLang}
+          />
         );
 
       case "products":
@@ -112,6 +100,16 @@ export function MainApp() {
     }
   };
 
+  if (currentView === "pos") {
+    return (
+      <CashierScreen
+        onBackToDashboard={() => setCurrentView("dashboard")}
+        lang={lang}
+        onToggleLang={handleToggleLang}
+      />
+    );
+  }
+
   return (
     <div className="h-screen max-h-screen overflow-hidden flex flex-col bg-[#ebf0f4]">
       {/* Exact Top Green Navbar from Image */}
@@ -136,7 +134,7 @@ export function MainApp() {
 
         {/* Dynamic Content View with View Sub-Header if not on dashboard */}
         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
-          {currentView !== "dashboard" && currentView !== "pos" && (
+          {currentView !== "dashboard" && (
             <div className="bg-white border-b border-[#EEEEEE] px-4 py-1.5 flex items-center justify-between text-xs shrink-0 select-none">
               <button
                 onClick={() => setCurrentView("dashboard")}
