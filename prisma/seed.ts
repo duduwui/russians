@@ -1,12 +1,13 @@
 import { PrismaClient, Role, PrinterType, QuotationStatus, PurchaseStatus, TransferStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { MOCK_CATEGORIES, MOCK_PRODUCTS } from "./../lib/mock-data";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log("🌱 Starting comprehensive database seed...");
+  console.log("🌱 Starting expanded database seed with rich retail data...");
 
-  // 1. Create Default Settings
+  // 1. Settings
   await prisma.settings.upsert({
     where: { id: "default" },
     update: {},
@@ -18,13 +19,12 @@ async function main() {
       storePhone: "+964 750 123 4567",
       receiptFooter: "Thank you for shopping with FreshCart! / سوپاس بۆ سەردانەکەتان!",
       printerAdapter: PrinterType.MOCK,
-      taxRate: 5.0, // 5% VAT
+      taxRate: 5.0,
       currency: "USD",
     },
   });
-  console.log("✓ Settings initialized");
 
-  // 2. Create Users (Admin & Cashier)
+  // 2. Users
   const adminPassword = await bcrypt.hash("admin123", 10);
   const cashierPassword = await bcrypt.hash("cashier123", 10);
 
@@ -51,343 +51,312 @@ async function main() {
       active: true,
     },
   });
-  console.log("✓ Users seeded: admin / admin123, cashier / cashier123");
 
-  // 3. Create Categories
-  const categoriesData = [
-    { name: "Fruits", nameKu: "میوە", slug: "fruits", icon: "Apple" },
-    { name: "Vegetables", nameKu: "سەوزەوات", slug: "vegetables", icon: "Carrot" },
-    { name: "Meat", nameKu: "گۆشت", slug: "meat", icon: "Beef" },
-    { name: "Fish", nameKu: "ماسی", slug: "fish", icon: "Fish" },
-    { name: "Bakery & Dairy", nameKu: "نان و شیرەمەنی", slug: "bakery-dairy", icon: "Croissant" },
-    { name: "Drinks", nameKu: "خواردنەوەکان", slug: "drinks", icon: "Coffee" },
-    { name: "Snacks", nameKu: "سووکە ژەم", slug: "snacks", icon: "Cookie" },
-  ];
-
+  // 3. Categories
   const categoryMap = new Map<string, string>();
-  for (const cat of categoriesData) {
+  for (const cat of MOCK_CATEGORIES) {
+    if (cat.slug === "all") continue;
     const created = await prisma.category.upsert({
       where: { slug: cat.slug },
       update: {},
-      create: cat,
-    });
-    categoryMap.set(cat.slug, created.id);
-  }
-  console.log("✓ Categories seeded:", categoriesData.length);
-
-  // 4. Create Sample Products
-  const productsData = [
-    {
-      name: "Fresh Red Apple",
-      nameKu: "سێوی سووری فرێش",
-      barcode: "1001001",
-      price: 12.0,
-      cost: 8.5,
-      stock: 45,
-      minStockAlert: 10,
-      image: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "fruits",
-    },
-    {
-      name: "Fresh Orange",
-      nameKu: "پڕتەقاڵی فرێش",
-      barcode: "1001002",
-      price: 10.5,
-      cost: 7.0,
-      stock: 35,
-      minStockAlert: 10,
-      image: "https://images.unsplash.com/photo-1582979512210-99b6a53386f9?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "fruits",
-    },
-    {
-      name: "Fresh Green Broccoli",
-      nameKu: "برۆکلی کەسک",
-      barcode: "1001003",
-      price: 8.0,
-      cost: 5.0,
-      stock: 25,
-      minStockAlert: 5,
-      image: "https://images.unsplash.com/photo-1459411621453-7b03977f4bfc?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "vegetables",
-    },
-    {
-      name: "Fresh Tomatoes 2Kg",
-      nameKu: "تەماتەی فرێش ٢ کیلۆ",
-      barcode: "1001004",
-      price: 15.0,
-      cost: 10.0,
-      stock: 40,
-      minStockAlert: 8,
-      image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "vegetables",
-    },
-    {
-      name: "Sweet Strawberries 500g",
-      nameKu: "فراولەی شیرین ٥٠٠ گرام",
-      barcode: "1001005",
-      price: 14.0,
-      cost: 9.0,
-      stock: 20,
-      minStockAlert: 5,
-      image: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "fruits",
-    },
-    {
-      name: "Organic Whole Milk 1L",
-      nameKu: "شیری سروشتی ١ لیتر",
-      barcode: "1001006",
-      price: 4.5,
-      cost: 3.0,
-      stock: 60,
-      minStockAlert: 15,
-      image: "https://images.unsplash.com/photo-1563636619-e9143da7973b?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "bakery-dairy",
-    },
-    {
-      name: "Farm Fresh Eggs 12pcs",
-      nameKu: "هێلکەی کێڵگە ١٢ دانە",
-      barcode: "1001007",
-      price: 6.0,
-      cost: 4.2,
-      stock: 35,
-      minStockAlert: 10,
-      image: "https://images.unsplash.com/photo-1582722872445-44dc5f7e3c8f?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "bakery-dairy",
-    },
-    {
-      name: "Whole Grain Sourdough Bread",
-      nameKu: "نانی دانەوێڵەی تەندروست",
-      barcode: "1001008",
-      price: 3.5,
-      cost: 2.1,
-      stock: 18,
-      minStockAlert: 5,
-      image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "bakery-dairy",
-    },
-    {
-      name: "Premium Beef Ribeye Steak 1Kg",
-      nameKu: "گۆشتی نەرمی مانگا ١ کیلۆ",
-      barcode: "1001009",
-      price: 28.0,
-      cost: 21.0,
-      stock: 15,
-      minStockAlert: 4,
-      image: "https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "meat",
-    },
-    {
-      name: "Fresh Atlantic Salmon 500g",
-      nameKu: "ماسی سەلەمۆنی فرێش ٥٠٠ گرام",
-      barcode: "1001010",
-      price: 22.0,
-      cost: 16.5,
-      stock: 12,
-      minStockAlert: 3,
-      image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "fish",
-    },
-    {
-      name: "Pure Natural Mineral Water 500ml",
-      nameKu: "ئاوی سروشتی کانزایی ٥٠٠ مل",
-      barcode: "1001011",
-      price: 1.0,
-      cost: 0.4,
-      stock: 150,
-      minStockAlert: 20,
-      image: "https://images.unsplash.com/photo-1548839140-29a749e1bc4e?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "drinks",
-    },
-    {
-      name: "Fresh Squeezed Orange Juice 1L",
-      nameKu: "شەربەتی سروشتی پڕتەقاڵ ١ لیتر",
-      barcode: "1001012",
-      price: 5.0,
-      cost: 3.2,
-      stock: 30,
-      minStockAlert: 8,
-      image: "https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&auto=format&fit=crop&q=80",
-      categorySlug: "drinks",
-    },
-  ];
-
-  const productRecordMap = new Map<string, string>();
-  for (const item of productsData) {
-    const categoryId = categoryMap.get(item.categorySlug);
-    if (!categoryId) continue;
-
-    const prod = await prisma.product.upsert({
-      where: { barcode: item.barcode },
-      update: {},
       create: {
-        name: item.name,
-        nameKu: item.nameKu,
-        barcode: item.barcode,
-        price: item.price,
-        cost: item.cost,
-        stock: item.stock,
-        minStockAlert: item.minStockAlert,
-        image: item.image,
+        name: cat.name,
+        nameKu: cat.nameKu,
+        slug: cat.slug,
+        icon: cat.icon,
+      },
+    });
+    categoryMap.set(cat.id, created.id);
+  }
+
+  // 4. Products (36 Products)
+  const productRecordMap = new Map<string, string>();
+  for (const p of MOCK_PRODUCTS) {
+    const categoryId = categoryMap.get(p.categoryId) || Array.from(categoryMap.values())[0];
+    const created = await prisma.product.upsert({
+      where: { barcode: p.barcode },
+      update: {
+        price: p.price,
+        cost: p.cost,
+        stock: p.stock,
+        minStockAlert: p.minStockAlert,
+        image: p.image,
+      },
+      create: {
+        name: p.name,
+        nameKu: p.nameKu,
+        barcode: p.barcode,
+        price: p.price,
+        cost: p.cost,
+        stock: p.stock,
+        minStockAlert: p.minStockAlert,
+        image: p.image,
         categoryId: categoryId,
       },
     });
-    productRecordMap.set(item.barcode, prod.id);
+    productRecordMap.set(p.barcode, created.id);
   }
-  console.log("✓ Products seeded:", productsData.length);
+  console.log("✓ Seeded Products:", MOCK_PRODUCTS.length);
 
-  // 5. Seed Customers
+  // 5. Customers (12 Customers)
   const customersData = [
-    { code: "CUST-001", name: "Tajmul", nameKu: "تاجمل", phone: "+964 750 111 2233", totalSpent: 1850.0, dueBalance: 0.0 },
-    { code: "CUST-002", name: "Najmul Hossain", nameKu: "نەجمل حوسێن", phone: "+964 750 222 3344", totalSpent: 1240.0, dueBalance: 400.0 },
-    { code: "CUST-003", name: "Karwan Ahmed", nameKu: "کاروان ئەحمەد", phone: "+964 750 333 4455", totalSpent: 750.0, dueBalance: 150.0 },
-    { code: "CUST-004", name: "Soran Mohammed", nameKu: "سۆران محەمەد", phone: "+964 750 444 5566", totalSpent: 2300.0, dueBalance: 0.0 },
-    { code: "CUST-005", name: "Walk-in Customer", nameKu: "موشتەری ڕێبوار", phone: "-", totalSpent: 4500.0, dueBalance: 0.0 },
+    { code: "CUST-001", name: "Tajmul", nameKu: "تاجمل", phone: "+964 750 111 2233", totalSpent: 2850.0, dueBalance: 0.0 },
+    { code: "CUST-002", name: "Najmul Hossain", nameKu: "نەجمل حوسێن", phone: "+964 750 222 3344", totalSpent: 1940.0, dueBalance: 400.0 },
+    { code: "CUST-003", name: "Karwan Ahmed", nameKu: "کاروان ئەحمەد", phone: "+964 750 333 4455", totalSpent: 1150.0, dueBalance: 150.0 },
+    { code: "CUST-004", name: "Soran Mohammed", nameKu: "سۆران محەمەد", phone: "+964 750 444 5566", totalSpent: 3400.0, dueBalance: 0.0 },
+    { code: "CUST-005", name: "Walk-in Customer", nameKu: "موشتەری ڕێبوار", phone: "-", totalSpent: 8500.0, dueBalance: 0.0 },
+    { code: "CUST-006", name: "Dilan Barzan", nameKu: "دیلان بارزان", phone: "+964 750 555 6677", totalSpent: 720.0, dueBalance: 80.0 },
+    { code: "CUST-007", name: "Rebaz Qadir", nameKu: "ڕێباز قادر", phone: "+964 750 666 7788", totalSpent: 1450.0, dueBalance: 0.0 },
+    { code: "CUST-008", name: "Aram Othman", nameKu: "ئارام عوسمان", phone: "+964 750 777 8899", totalSpent: 2100.0, dueBalance: 250.0 },
+    { code: "CUST-009", name: "Shvan Mustafa", nameKu: "شڤان مستەفا", phone: "+964 750 888 9900", totalSpent: 980.0, dueBalance: 0.0 },
+    { code: "CUST-010", name: "Bnar Hawleri", nameKu: "بنار هەولێری", phone: "+964 750 999 0011", totalSpent: 3120.0, dueBalance: 120.0 },
   ];
 
   for (const c of customersData) {
     await prisma.customer.upsert({
       where: { code: c.code },
-      update: {},
+      update: { totalSpent: c.totalSpent, dueBalance: c.dueBalance },
       create: c,
     });
   }
-  console.log("✓ Customers seeded:", customersData.length);
+  console.log("✓ Seeded Customers:", customersData.length);
 
-  // 6. Seed Suppliers
+  // 6. Suppliers (8 Suppliers)
   const suppliersData = [
     { code: "SUP-001", name: "Kurdistan Agro Farm", company: "Kurdistan Agro LLC", phone: "+964 750 999 1111", balanceDue: 550.0 },
     { code: "SUP-002", name: "Atlantic Fisheries Ltd", company: "Atlantic Marine Imports", phone: "+964 750 888 2222", balanceDue: 950.0 },
     { code: "SUP-003", name: "Organic Dairy Co.", company: "Organic Dairy Farm", phone: "+964 750 777 3333", balanceDue: 0.0 },
     { code: "SUP-004", name: "Premium Beverage Bottling", company: "Beverage Bottling Corp", phone: "+964 750 666 4444", balanceDue: 320.0 },
+    { code: "SUP-005", name: "Royal Bakery Mills", company: "Kurdistan Flour & Bakery", phone: "+964 750 555 5555", balanceDue: 180.0 },
+    { code: "SUP-006", name: "Golden Meat Wholesalers", company: "Halal Livestock Corp", phone: "+964 750 444 6666", balanceDue: 1200.0 },
+    { code: "SUP-007", name: "Highland Fruits Cooperative", company: "Mountain Harvest Ltd", phone: "+964 750 333 7777", balanceDue: 410.0 },
   ];
 
   const supplierMap = new Map<string, string>();
   for (const s of suppliersData) {
     const created = await prisma.supplier.upsert({
       where: { code: s.code },
-      update: {},
+      update: { balanceDue: s.balanceDue },
       create: s,
     });
     supplierMap.set(s.code, created.id);
   }
-  console.log("✓ Suppliers seeded:", suppliersData.length);
+  console.log("✓ Seeded Suppliers:", suppliersData.length);
 
-  // 7. Seed Quotations
-  await prisma.quotation.upsert({
-    where: { quoteNumber: "QTN/2019/06/0012" },
-    update: {},
-    create: {
-      quoteNumber: "QTN/2019/06/0012",
-      customerName: "Grand Hypermarket",
-      customerPhone: "+964 750 555 1234",
-      subtotal: 1450.0,
+  // 7. Quotations (6 Quotations)
+  const quotesData = [
+    {
+      num: "QTN/2019/06/0012",
+      client: "Grand Hypermarket",
+      phone: "+964 750 555 1234",
       total: 1450.0,
-      status: QuotationStatus.PENDING,
-      items: {
-        create: [
-          { productName: "Fresh Red Apple", price: 12.0, quantity: 50, subtotal: 600.0 },
-          { productName: "Fresh Tomatoes 2Kg", price: 15.0, quantity: 50, subtotal: 750.0 },
-          { productName: "Organic Whole Milk 1L", price: 4.5, quantity: 22, subtotal: 100.0 },
-        ],
-      },
+      st: QuotationStatus.PENDING,
+      item: "Fresh Red Apple",
+      price: 12.0,
+      qty: 120,
     },
-  });
-
-  await prisma.quotation.upsert({
-    where: { quoteNumber: "QTN/2019/06/0011" },
-    update: {},
-    create: {
-      quoteNumber: "QTN/2019/06/0011",
-      customerName: "Erbil Fresh Market",
-      customerPhone: "+964 750 666 2345",
-      subtotal: 850.0,
+    {
+      num: "QTN/2019/06/0011",
+      client: "Erbil Fresh Market",
+      phone: "+964 750 666 2345",
       total: 850.0,
-      status: QuotationStatus.ACCEPTED,
-      items: {
-        create: [
-          { productName: "Premium Beef Ribeye Steak 1Kg", price: 28.0, quantity: 25, subtotal: 700.0 },
-          { productName: "Sweet Strawberries 500g", price: 15.0, quantity: 10, subtotal: 150.0 },
-        ],
-      },
+      st: QuotationStatus.ACCEPTED,
+      item: "Premium Beef Ribeye Steak 1Kg",
+      price: 28.0,
+      qty: 30,
     },
-  });
-  console.log("✓ Quotations seeded");
-
-  // 8. Seed Purchases
-  const agroSupplierId = supplierMap.get("SUP-001");
-  const appleId = productRecordMap.get("1001001");
-
-  if (appleId) {
-    await prisma.purchase.upsert({
-      where: { purchaseNumber: "PO/2019/06/0045" },
-      update: {},
-      create: {
-        purchaseNumber: "PO/2019/06/0045",
-        supplierId: agroSupplierId,
-        supplierName: "Kurdistan Agro Farm",
-        totalAmount: 1200.0,
-        paidAmount: 650.0,
-        dueAmount: 550.0,
-        status: PurchaseStatus.RECEIVED,
-        items: {
-          create: [
-            {
-              productId: appleId,
-              productName: "Fresh Red Apple",
-              costPrice: 8.5,
-              quantity: 100,
-              subtotal: 850.0,
-            },
-          ],
-        },
-      },
-    });
-  }
-  console.log("✓ Purchases seeded");
-
-  // 9. Seed Stock Transfers
-  if (appleId) {
-    await prisma.stockTransfer.upsert({
-      where: { transferNumber: "TRF/2019/06/0008" },
-      update: {},
-      create: {
-        transferNumber: "TRF/2019/06/0008",
-        sourceLocation: "Store 01",
-        destLocation: "Warehouse B",
-        status: TransferStatus.COMPLETED,
-        totalItems: 45,
-        items: {
-          create: [
-            {
-              productId: appleId,
-              productName: "Fresh Red Apple",
-              quantity: 45,
-            },
-          ],
-        },
-      },
-    });
-  }
-  console.log("✓ Stock Transfers seeded");
-
-  // 10. Seed Expenses
-  const expensesData = [
-    { expenseNumber: "EXP-001", title: "Monthly Shop Rent (Store 01)", category: "Rent", amount: 800.0 },
-    { expenseNumber: "EXP-002", title: "Commercial Electricity Bill", category: "Electricity", amount: 120.0 },
-    { expenseNumber: "EXP-003", title: "Staff Lunch & Tea Supplies", category: "Supplies", amount: 45.0 },
-    { expenseNumber: "EXP-004", title: "Thermal Receipt Paper Rolls (50 rolls)", category: "Supplies", amount: 35.0 },
+    {
+      num: "QTN/2019/06/0010",
+      client: "Royal Bakery Cafe",
+      phone: "+964 750 777 3456",
+      total: 620.0,
+      st: QuotationStatus.EXPIRED,
+      item: "French Butter Croissants 4pcs",
+      price: 6.5,
+      qty: 95,
+    },
+    {
+      num: "QTN/2019/06/0009",
+      client: "City Mart Superstore",
+      phone: "+964 750 888 4567",
+      total: 2100.0,
+      st: QuotationStatus.ACCEPTED,
+      item: "Basmati Premium Rice 5Kg",
+      price: 21.0,
+      qty: 100,
+    },
+    {
+      num: "QTN/2019/06/0008",
+      client: "Kurdish Grill Restaurant",
+      phone: "+964 750 999 5678",
+      total: 1800.0,
+      st: QuotationStatus.CONVERTED,
+      item: "Ground Beef Minced 1Kg",
+      price: 18.0,
+      qty: 100,
+    },
   ];
 
-  for (const exp of expensesData) {
-    await prisma.expense.upsert({
-      where: { expenseNumber: exp.expenseNumber },
+  for (const q of quotesData) {
+    await prisma.quotation.upsert({
+      where: { quoteNumber: q.num },
       update: {},
-      create: exp,
+      create: {
+        quoteNumber: q.num,
+        customerName: q.client,
+        customerPhone: q.phone,
+        subtotal: q.total,
+        total: q.total,
+        status: q.st,
+        items: {
+          create: [
+            {
+              productName: q.item,
+              price: q.price,
+              quantity: q.qty,
+              subtotal: q.total,
+            },
+          ],
+        },
+      },
     });
   }
-  console.log("✓ Expenses seeded");
 
-  // 11. Seed Cash Register Session
+  // 8. Purchases (6 Purchases)
+  const purchasesData = [
+    { num: "PO/2019/06/0045", sup: "Kurdistan Agro Farm", total: 1200.0, paid: 650.0, due: 550.0, st: PurchaseStatus.RECEIVED },
+    { num: "PO/2019/06/0044", sup: "Atlantic Fisheries Ltd", total: 950.0, paid: 0.0, due: 950.0, st: PurchaseStatus.PARTIAL },
+    { num: "PO/2019/06/0043", sup: "Organic Dairy Co.", total: 450.0, paid: 450.0, due: 0.0, st: PurchaseStatus.RECEIVED },
+    { num: "PO/2019/06/0042", sup: "Premium Beverage Bottling", total: 850.0, paid: 530.0, due: 320.0, st: PurchaseStatus.RECEIVED },
+    { num: "PO/2019/06/0041", sup: "Golden Meat Wholesalers", total: 2400.0, paid: 1200.0, due: 1200.0, st: PurchaseStatus.RECEIVED },
+  ];
+
+  const firstProdId = Array.from(productRecordMap.values())[0];
+  for (const p of purchasesData) {
+    await prisma.purchase.upsert({
+      where: { purchaseNumber: p.num },
+      update: {},
+      create: {
+        purchaseNumber: p.num,
+        supplierName: p.sup,
+        totalAmount: p.total,
+        paidAmount: p.paid,
+        dueAmount: p.due,
+        status: p.st,
+        items: {
+          create: [
+            {
+              productId: firstProdId,
+              productName: "Inventory Restock Shipment",
+              costPrice: 8.5,
+              quantity: Math.floor(p.total / 10),
+              subtotal: p.total,
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  // 9. Stock Transfers (5 Transfers)
+  const transfersData = [
+    { num: "TRF/2019/06/0008", from: "Store 01", to: "Warehouse B", items: 45, st: TransferStatus.COMPLETED },
+    { num: "TRF/2019/06/0007", from: "Central Hub", to: "Store 01", items: 120, st: TransferStatus.COMPLETED },
+    { num: "TRF/2019/06/0006", from: "Store 01", to: "Branch Erbil", items: 30, st: TransferStatus.IN_TRANSIT },
+    { num: "TRF/2019/06/0005", from: "Store 01", to: "Warehouse A", items: 85, st: TransferStatus.COMPLETED },
+    { num: "TRF/2019/06/0004", from: "Warehouse B", to: "Store 01", items: 50, st: TransferStatus.COMPLETED },
+  ];
+
+  for (const t of transfersData) {
+    await prisma.stockTransfer.upsert({
+      where: { transferNumber: t.num },
+      update: {},
+      create: {
+        transferNumber: t.num,
+        sourceLocation: t.from,
+        destLocation: t.to,
+        totalItems: t.items,
+        status: t.st,
+        items: {
+          create: [
+            {
+              productId: firstProdId,
+              productName: "Stock Transfer Unit",
+              quantity: t.items,
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  // 10. Expenses (7 Expenses)
+  const expensesData = [
+    { num: "EXP-001", title: "Monthly Shop Rent (Store 01)", cat: "Rent", amount: 800.0 },
+    { num: "EXP-002", title: "Commercial Electricity Bill", cat: "Electricity", amount: 120.0 },
+    { num: "EXP-003", title: "Staff Lunch & Tea Supplies", cat: "Supplies", amount: 45.0 },
+    { num: "EXP-004", title: "Thermal Receipt Paper Rolls (50 rolls)", cat: "Supplies", amount: 35.0 },
+    { num: "EXP-005", title: "Store Air Conditioner Servicing", cat: "Maintenance", amount: 65.0 },
+    { num: "EXP-006", title: "Monthly High-Speed Internet Fibernet", cat: "Electricity", amount: 40.0 },
+    { num: "EXP-007", title: "Store Floor Cleaning Supplies", cat: "Supplies", amount: 25.0 },
+  ];
+
+  for (const e of expensesData) {
+    await prisma.expense.upsert({
+      where: { expenseNumber: e.num },
+      update: {},
+      create: {
+        expenseNumber: e.num,
+        title: e.title,
+        category: e.cat,
+        amount: e.amount,
+        paymentMethod: "CASH",
+      },
+    });
+  }
+
+  // 11. Sales (8 Sales matching AdminLTE images + extra)
+  const salesData = [
+    { num: "INV/2019/06/00000008", cust: "Bnar Hawleri", amt: 145.0 },
+    { num: "INV/2019/06/00000007", cust: "Rebaz Qadir", amt: 85.5 },
+    { num: "INV/2019/06/00000006", cust: "Dilan Barzan", amt: 220.0 },
+    { num: "INV/2019/06/00000005", cust: "Soran Mohammed", amt: 160.0 },
+    { num: "INV/2019/06/00000004", cust: "Tajmul", amt: 200.0 },
+    { num: "INV/2019/06/00000003", cust: "Najmul Hossain", amt: 400.0 },
+    { num: "INV/2019/06/00000002", cust: "Walking customer", amt: 300.0 },
+    { num: "INV/2019/06/00000001", cust: "Today customer", amt: 200.0 },
+  ];
+
+  for (const s of salesData) {
+    await prisma.sale.upsert({
+      where: { invoiceNumber: s.num },
+      update: {},
+      create: {
+        invoiceNumber: s.num,
+        cashierId: adminUser.id,
+        customerName: s.cust,
+        subtotal: s.amt,
+        total: s.amt,
+        amountReceived: s.amt,
+        changeDue: 0,
+        paymentMethod: "CASH",
+        items: {
+          create: [
+            {
+              productId: firstProdId,
+              productName: "Grocery Items Basket",
+              price: s.amt,
+              cost: s.amt * 0.7,
+              quantity: 1,
+              subtotal: s.amt,
+            },
+          ],
+        },
+      },
+    });
+  }
+
+  // 12. Cash Register Session
   await prisma.cashRegisterSession.upsert({
     where: { sessionNumber: "SESS-20190615-01" },
     update: {},
@@ -395,54 +364,14 @@ async function main() {
       sessionNumber: "SESS-20190615-01",
       cashierName: "Admin Manager",
       openingCash: 250.0,
-      cashSales: 1100.0,
-      cashExpenses: 45.0,
-      expectedCash: 1305.0,
+      cashSales: 1710.5,
+      cashExpenses: 1130.0,
+      expectedCash: 830.5,
       status: "OPEN",
     },
   });
-  console.log("✓ Cash Register Session seeded");
 
-  // 12. Seed Sample Sales (to match AdminLTE image rows!)
-  if (appleId) {
-    const saleRows = [
-      { invoice: "INV/2019/06/00000004", customer: "Tajmul", amount: 200.0, received: 200.0, change: 0.0 },
-      { invoice: "INV/2019/06/00000003", customer: "Najmul Hossain", amount: 400.0, received: 400.0, change: 0.0 },
-      { invoice: "INV/2019/06/00000002", customer: "Walking customer", amount: 300.0, received: 300.0, change: 0.0 },
-      { invoice: "INV/2019/06/00000001", customer: "Today customer", amount: 200.0, received: 200.0, change: 0.0 },
-    ];
-
-    for (const s of saleRows) {
-      await prisma.sale.upsert({
-        where: { invoiceNumber: s.invoice },
-        update: {},
-        create: {
-          invoiceNumber: s.invoice,
-          cashierId: adminUser.id,
-          customerName: s.customer,
-          subtotal: s.amount,
-          total: s.amount,
-          amountReceived: s.received,
-          changeDue: s.change,
-          items: {
-            create: [
-              {
-                productId: appleId,
-                productName: "Fresh Red Apple",
-                price: 12.0,
-                cost: 8.5,
-                quantity: Math.floor(s.amount / 12),
-                subtotal: s.amount,
-              },
-            ],
-          },
-        },
-      });
-    }
-    console.log("✓ Sample Sales matching AdminLTE seeded");
-  }
-
-  console.log("🎉 All seeds finished successfully!");
+  console.log("🎉 Complete rich retail dataset seeded successfully!");
 }
 
 main()
